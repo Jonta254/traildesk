@@ -1,20 +1,64 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+
+function TrailDeskLogo({ size = 34 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 34 34" fill="none" aria-hidden="true">
+      <rect width="34" height="34" rx="9" fill="url(#td-bg)"/>
+      {/* Mountain peaks */}
+      <path d="M5 26L12 12L17 20L22 10L29 26H5Z" fill="none" stroke="url(#td-peak)" strokeWidth="1.5" strokeLinejoin="round"/>
+      {/* Snow cap */}
+      <path d="M22 10L19.5 16L24.5 16L22 10Z" fill="url(#td-snow)" opacity="0.8"/>
+      {/* Compass point */}
+      <circle cx="22" cy="10" r="1.5" fill="url(#td-dot)"/>
+      <defs>
+        <linearGradient id="td-bg" x1="0" y1="0" x2="34" y2="34">
+          <stop offset="0%" stopColor="#061A10"/><stop offset="100%" stopColor="#030A08"/>
+        </linearGradient>
+        <linearGradient id="td-peak" x1="5" y1="26" x2="29" y2="10">
+          <stop offset="0%" stopColor="#34D399"/><stop offset="100%" stopColor="#60B7FF"/>
+        </linearGradient>
+        <linearGradient id="td-snow" x1="19" y1="10" x2="25" y2="16">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9"/><stop offset="100%" stopColor="#60B7FF" stopOpacity="0.5"/>
+        </linearGradient>
+        <radialGradient id="td-dot">
+          <stop offset="0%" stopColor="#34D399"/><stop offset="100%" stopColor="#20A876"/>
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+}
 
 const FEATURES = [
-  { icon: "🗺️", color: "rgba(52,211,153,0.12)", title: "Offline-First Maps", desc: "Download topo maps before you leave. Routes, waypoints, and terrain data are available without signal — cached locally on your device." },
-  { icon: "🎒", color: "rgba(96,183,255,0.1)", title: "Smart Gear Checklists", desc: "Build reusable packing lists by trip type. Check items off as you pack. Never leave a first aid kit behind because you forgot to check." },
-  { icon: "🆘", color: "rgba(200,149,92,0.12)", title: "Emergency Contacts", desc: "Set a contact who gets your planned route and a check-in schedule. If you don't check in, they get an alert. Simple, but it might save your life." },
-  { icon: "📷", color: "rgba(52,211,153,0.08)", title: "Trail Archive", desc: "Log every trip with notes, photos, GPX tracks, and conditions. Build a personal atlas of routes you've done — and ones you want to do." },
-  { icon: "🌤️", color: "rgba(96,183,255,0.12)", title: "Conditions & Forecasts", desc: "Sync weather forecasts to your planned departure points before you go offline. Check conditions against your route for any flagged hazards." },
-  { icon: "🔋", color: "rgba(200,149,92,0.1)", title: "Battery Efficient", desc: "Built to run all day on a phone. Minimal background processing. Screen-on time for navigation without killing your battery on the descent." },
+  { icon:"🗺️", color:"rgba(52,211,153,0.12)", title:"Offline-First Maps", desc:"Download topo maps before you leave. Routes, waypoints, and terrain data cached locally — no signal required. Works on Milford, Tongariro, or a ridge in the middle of nowhere." },
+  { icon:"🎒", color:"rgba(96,183,255,0.1)", title:"Smart Gear Checklists", desc:"Build reusable packing lists by trip type: day hike, overnight, multi-day technical. Check off as you pack. Get a reminder if something critical is unchecked at departure time." },
+  { icon:"🆘", color:"rgba(200,149,92,0.12)", title:"Emergency Contacts", desc:"Set a contact with your planned route and check-in schedule. If you don't check in at a waypoint, they get an alert with your last known GPS point." },
+  { icon:"📷", color:"rgba(52,211,153,0.08)", title:"Trip Archive", desc:"Log every trip with notes, photos, GPX tracks, and conditions. Build your own personal atlas — useful before you repeat a route and vital if search and rescue ever needs it." },
+  { icon:"🌤️", color:"rgba(96,183,255,0.12)", title:"Conditions Sync", desc:"Pull weather forecasts for your planned departure points before you go offline. Compare conditions against your route and see automatically flagged hazards." },
+  { icon:"🔋", color:"rgba(200,149,92,0.1)", title:"All-Day Battery", desc:"Built from the ground up for efficiency. Minimal background processes, smart GPS polling, and a low-power navigation mode that lasts your whole descent." },
+  { icon:"🧭", color:"rgba(52,211,153,0.1)", title:"GPX Import & Export", desc:"Import routes from Strava, Garmin, Alltrails, or any GPX source. Export your recorded tracks to share or submit to SAR teams if needed." },
+  { icon:"👥", color:"rgba(96,183,255,0.08)", title:"Group Trip Sharing", desc:"Share your trip plan with everyone in your group. Each person gets offline access to the route, emergency contacts, and gear list without needing to rebuild it." },
 ];
 
-const SAVED_TRIPS = [
-  { name: "Tongariro Alpine Crossing", tags: ["Downloaded", "8hr", "Volcanic"], date: "Planned: 15 Jul" },
-  { name: "Milford Track — Day 3", tags: ["Archived", "19km", "Completed"], date: "Done: 22 Apr" },
-  { name: "Copland Track", tags: ["Draft", "3 days", "Hot Springs"], date: "Saved for later" },
+const TRIPS = [
+  { name:"Tongariro Alpine Crossing", region:"New Zealand", tags:["Downloaded","8hr","Volcanic","23km"], cond:{ difficulty:82, exposure:65, water:90 }, status:"planned", date:"Planned: 15 Jul" },
+  { name:"Milford Track — Day 3 (Mackinnon Pass)", region:"New Zealand", tags:["Archived","19km","Fiordland"], cond:{ difficulty:70, exposure:55, water:95 }, status:"done", date:"Completed: 22 Apr" },
+  { name:"Laugavegur Trail, Iceland", region:"Iceland", tags:["Draft","4 days","Volcanic","55km"], cond:{ difficulty:75, exposure:80, water:85 }, status:"draft", date:"Saved for later" },
+  { name:"Overland Track, Tasmania", region:"Australia", tags:["Downloaded","65km","6 days","Remote"], cond:{ difficulty:68, exposure:72, water:88 }, status:"planned", date:"Planned: Sep 2025" },
+  { name:"Tour du Mont Blanc — Day 1", region:"France/Italy/Switzerland", tags:["Archived","20km","Alpine"], cond:{ difficulty:78, exposure:88, water:70 }, status:"done", date:"Completed: Jul 2024" },
+];
+
+const TESTIMONIALS = [
+  { text:"I've done 30+ multi-day hikes and this is the first app that actually works when I need it — underground, in a gorge, on a ridge at 2am. Offline means offline.", name:"Jake Morrison", role:"Thru-hiker · Appalachian Trail", init:"JM", color:"#34D399" },
+  { text:"The emergency contact feature gave my family actual peace of mind when I did Laugavegur alone. They got my check-in logs every 4 hours. That's not nothing.", name:"Elena Vasquez", role:"Solo hiker · 3 continents", init:"EV", color:"#60B7FF" },
+  { text:"I guide groups across the Southern Alps. Having every participant's gear checklist and emergency contact synced offline before we leave the carpark is genuinely valuable.", name:"Tom Kahu", role:"Wilderness Guide, NZ", init:"TK", color:"#C8955C" },
+];
+
+const STATS = [
+  { num:"100%", label:"Offline capable" },
+  { num:"<1%", label:"Battery per hour" },
+  { num:"All day", label:"Navigation life" },
+  { num:"50+ regions", label:"Downloaded map coverage" },
 ];
 
 export default function TrailDeskPage() {
@@ -27,7 +71,7 @@ export default function TrailDeskPage() {
       (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("visible"); }),
       { threshold: 0.1 }
     );
-    revealRefs.current.forEach((el) => { if (el) obs.observe(el); });
+    document.querySelectorAll(".reveal").forEach((el) => obs.observe(el));
     return () => obs.disconnect();
   }, []);
 
@@ -35,46 +79,63 @@ export default function TrailDeskPage() {
     if (el && !revealRefs.current.includes(el)) revealRefs.current.push(el);
   };
 
+  const statusColor = (s: string) => s === "done" ? "var(--trail)" : s === "planned" ? "var(--sky)" : "var(--earth)";
+
   return (
     <>
       <nav className="nav">
-        <Link href="/" className="nav-logo">
-          <div className="nav-mark">🏔</div>
+        <a href="/" style={{ display:"flex", alignItems:"center", gap:10, textDecoration:"none" }}>
+          <TrailDeskLogo size={34} />
           <span className="nav-name">TrailDesk</span>
-        </Link>
+        </a>
         <a href="#waitlist" className="nav-cta">Get Early Access</a>
       </nav>
 
-      {/* HERO */}
-      <section className="hero">
+      {/* ── HERO ────────────────────────────────────────────── */}
+      <section className="hero topo-bg">
         <div className="hero-glow" />
-        <div className="hero-badge">🏔 Offline-first · No signal required</div>
+        {/* Topographic overlay lines */}
+        <div aria-hidden style={{ position:"absolute", inset:0, backgroundImage:"repeating-radial-gradient(ellipse 100% 60% at 50% 105%, transparent 0, transparent 35px, rgba(52,211,153,0.04) 36px, rgba(52,211,153,0.04) 37px)", pointerEvents:"none" }} />
+
+        <div className="hero-badge">
+          <span style={{ display:"inline-block", width:8, height:8, borderRadius:"50%", background:"var(--trail)", animation:"pulse 2s ease-in-out infinite" }} />
+          Offline-first · Works anywhere · No signal needed
+          <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
+        </div>
+
         <h1 className="hero-title">
-          Trip planning that works<br />when your <span className="accent">signal doesn&apos;t.</span>
+          Trip planning that works<br />when your <span className="accent">signal&nbsp;doesn&apos;t.</span>
         </h1>
+
         <p className="hero-sub">
-          Offline route mapping, gear checklists, emergency contacts, and trail archives. For people who take going outside seriously enough to prepare for it.
+          Offline route mapping, smart gear checklists, emergency contacts, and trip archives — built for people who take going outside seriously enough to actually prepare for it.
         </p>
+
         <div className="hero-actions">
           <a href="#waitlist" className="btn-primary">Join the Waitlist →</a>
-          <a href="#features" className="btn-ghost">See Features</a>
+          <a href="#features" className="btn-ghost">See Features ↓</a>
         </div>
-        <div className="hero-stats">
-          <div className="hero-stat"><span className="hero-stat-num">100%</span><span className="hero-stat-label">Offline capable</span></div>
-          <div className="hero-stat"><span className="hero-stat-num">All day</span><span className="hero-stat-label">Battery life</span></div>
-          <div className="hero-stat"><span className="hero-stat-num">0</span><span className="hero-stat-label">Data required</span></div>
+
+        {/* Stats strip */}
+        <div className="trail-stat-strip reveal" ref={addReveal} style={{ maxWidth:700, width:"100%", background:"rgba(6,12,10,0.8)" }}>
+          {STATS.map((s) => (
+            <div key={s.label} className="trail-stat-item">
+              <div className="trail-stat-num">{s.num}</div>
+              <div className="trail-stat-label">{s.label}</div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* FEATURES */}
+      {/* ── FEATURES ────────────────────────────────────────── */}
       <section id="features" className="section">
         <p className="section-label reveal" ref={addReveal}>Features</p>
-        <h2 className="section-title reveal" ref={addReveal}>Prepared before you leave. Safe while you&apos;re out there.</h2>
-        <p className="section-sub reveal" ref={addReveal}>Every feature built around the assumption that you will lose signal — because you will.</p>
+        <h2 className="section-title reveal" ref={addReveal}>Prepared before you leave.<br />Safe while you&apos;re out there.</h2>
+        <p className="section-sub reveal" ref={addReveal}>Every feature is built around the assumption that you will lose signal — because you will.</p>
         <div className="feature-grid">
           {FEATURES.map((f, i) => (
-            <div key={i} className="feature-card reveal" ref={addReveal} style={{ transitionDelay: `${i * 0.07}s` }}>
-              <div className="feature-icon" style={{ background: f.color }}>{f.icon}</div>
+            <div key={i} className="feature-card-v2 reveal" ref={addReveal} style={{ transitionDelay:`${i * 0.06}s` }}>
+              <div className="feature-icon" style={{ background:f.color, border:`1px solid ${f.color.replace("0.1","0.3").replace("0.12","0.3").replace("0.08","0.2")}` }}>{f.icon}</div>
               <div className="feature-title">{f.title}</div>
               <div className="feature-desc">{f.desc}</div>
             </div>
@@ -82,38 +143,64 @@ export default function TrailDeskPage() {
         </div>
       </section>
 
-      {/* TRIP DEMO */}
-      <div style={{ background: "var(--bg2)", padding: "5rem 1.5rem", borderTop: "1px solid var(--border)" }}>
-        <div style={{ maxWidth: 700, margin: "0 auto" }}>
+      <div className="topo-rule" />
+
+      {/* ── TRIP DEMO ────────────────────────────────────────── */}
+      <div style={{ background:"var(--bg2)", padding:"5rem 1.5rem", borderTop:"1px solid var(--border)" }}>
+        <div style={{ maxWidth:800, margin:"0 auto" }}>
           <p className="section-label reveal" ref={addReveal}>Your trips</p>
-          <h2 className="section-title reveal" ref={addReveal}>Everything in one place.</h2>
-          <p className="section-sub reveal" ref={addReveal}>Planned, archived, and in-progress trips — all accessible offline.</p>
-          <div>
-            {SAVED_TRIPS.map((trip, i) => (
-              <div key={i} className="trip-card reveal" ref={addReveal} style={{ transitionDelay: `${i * 0.1}s` }}>
-                <div className="trip-name">{trip.name}</div>
-                <div className="trip-meta">
-                  {trip.tags.map((t) => <span key={t} className="trip-tag">{t}</span>)}
-                  <span style={{ fontSize: "0.8rem", color: "var(--text-mute)", alignSelf: "center" }}>{trip.date}</span>
+          <h2 className="section-title reveal" ref={addReveal}>Plan. Prepare. Archive.</h2>
+          <p className="section-sub reveal" ref={addReveal}>Planned routes, completed archives, and saved drafts — all accessible offline, always.</p>
+
+          {TRIPS.map((trip, i) => (
+            <div key={i} className="conditions-card reveal" ref={addReveal} style={{ transitionDelay:`${i*0.07}s` }}>
+              <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12, marginBottom:"0.875rem", flexWrap:"wrap" }}>
+                <div>
+                  <div className="trip-name">{trip.name}</div>
+                  <div style={{ fontSize:"0.78rem", color:"var(--text-mute)", marginTop:3 }}>📍 {trip.region}</div>
                 </div>
+                <span style={{ padding:"3px 10px", borderRadius:100, fontSize:"0.7rem", fontWeight:700, background:`rgba(${statusColor(trip.status)==="var(--trail)"?"52,211,153":statusColor(trip.status)==="var(--sky)"?"96,183,255":"200,149,92"},0.12)`, color:statusColor(trip.status), border:`1px solid ${statusColor(trip.status)}44`, flexShrink:0, textTransform:"capitalize" }}>
+                  {trip.status}
+                </span>
               </div>
-            ))}
-          </div>
+              <div className="trip-meta" style={{ marginBottom:"1rem" }}>
+                {trip.tags.map((t) => <span key={t} className="trip-tag">{t}</span>)}
+                <span style={{ fontSize:"0.75rem", color:"var(--text-mute)", alignSelf:"center" }}>{trip.date}</span>
+              </div>
+              {/* Conditions bars */}
+              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                {[
+                  { label:"Difficulty", val:trip.cond.difficulty, color:"var(--earth)" },
+                  { label:"Exposure",   val:trip.cond.exposure,   color:"var(--sky)" },
+                  { label:"Water",      val:trip.cond.water,       color:"var(--trail)" },
+                ].map((bar) => (
+                  <div key={bar.label} className="condition-row" style={{ marginBottom:0 }}>
+                    <span className="condition-label">{bar.label}</span>
+                    <div className="condition-bar">
+                      <div className="condition-fill" style={{ width:`${bar.val}%`, background:bar.color, opacity:0.75 }} />
+                    </div>
+                    <span style={{ fontSize:"0.7rem", fontFamily:"monospace", color:"var(--text-mute)", width:28, textAlign:"right" }}>{bar.val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* HOW IT WORKS */}
+      {/* ── HOW IT WORKS ────────────────────────────────────── */}
       <section className="section">
         <p className="section-label reveal" ref={addReveal}>How it works</p>
         <h2 className="section-title reveal" ref={addReveal}>Three steps before the trailhead.</h2>
         <div className="steps">
           {[
-            { num: "01", title: "Plan your route", desc: "Search or draw your route on the map. Add waypoints, estimated times, and campsites." },
-            { num: "02", title: "Prepare offline", desc: "Download maps for your area. Pack your gear with the checklist. Set your emergency contact schedule." },
-            { num: "03", title: "Go — without worrying", desc: "Navigate with cached maps. Log notes and photos. Check in with your contact at planned points." },
+            { num:"01", icon:"🗺️", title:"Plan your route", desc:"Search or draw your route. Add waypoints, campsites, estimated times, and elevation profiles. Connect to AllTrails or import any GPX file." },
+            { num:"02", icon:"📦", title:"Prepare offline", desc:"Download maps for your area. Build your gear checklist from templates. Set your emergency contact's schedule and share your full route plan before you leave." },
+            { num:"03", icon:"🏔️", title:"Go — without worry", desc:"Navigate with cached offline maps. Log notes and photos at waypoints. Check in on schedule. Your contact sees your progress in real time." },
           ].map((step, i) => (
-            <div key={i} className="step reveal" ref={addReveal} style={{ transitionDelay: `${i * 0.1}s` }}>
+            <div key={i} className="step reveal" ref={addReveal} style={{ transitionDelay:`${i * 0.1}s` }}>
               <div className="step-num">{step.num}</div>
+              <div style={{ fontSize:"1.5rem", marginBottom:"0.75rem" }}>{step.icon}</div>
               <div className="step-title">{step.title}</div>
               <div className="step-desc">{step.desc}</div>
             </div>
@@ -121,26 +208,52 @@ export default function TrailDeskPage() {
         </div>
       </section>
 
-      {/* PRICING */}
-      <div style={{ background: "var(--bg2)", padding: "5rem 1.5rem", borderTop: "1px solid var(--border)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+      <div className="topo-rule" />
+
+      {/* ── TESTIMONIALS ────────────────────────────────────── */}
+      <div style={{ background:"var(--bg2)", padding:"5rem 1.5rem", borderTop:"1px solid var(--border)" }}>
+        <div style={{ maxWidth:1100, margin:"0 auto" }}>
+          <p className="section-label reveal" ref={addReveal} style={{ textAlign:"center" }}>From the trail</p>
+          <h2 className="section-title reveal" ref={addReveal} style={{ textAlign:"center", marginBottom:"2.5rem" }}>People who take it seriously.</h2>
+          <div className="testi-grid">
+            {TESTIMONIALS.map((t, i) => (
+              <div key={i} className="testi-card reveal" ref={addReveal} style={{ transitionDelay:`${i*0.08}s` }}>
+                <div className="testi-text">&ldquo;{t.text}&rdquo;</div>
+                <div className="testi-author">
+                  <div className="testi-avatar" style={{ background:`linear-gradient(135deg,${t.color},${t.color}88)` }}>{t.init}</div>
+                  <div>
+                    <div className="testi-name">{t.name}</div>
+                    <div className="testi-role">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── PRICING ─────────────────────────────────────────── */}
+      <div style={{ background:"var(--bg)", padding:"5rem 1.5rem", borderTop:"1px solid var(--border)" }}>
+        <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <p className="section-label reveal" ref={addReveal}>Pricing</p>
           <h2 className="section-title reveal" ref={addReveal}>Simple. No surprises.</h2>
+          <p className="section-sub reveal" ref={addReveal}>Pay for what you use. Free for occasional hikers, Explorer for regulars, Expedition for guides and professionals.</p>
           <div className="price-grid">
             {[
-              { tier: "Free", amount: "$0", period: "", desc: "For day trips and occasional use.", features: ["3 saved trips", "Basic gear checklists", "1 emergency contact", "Manual GPX import"], featured: false },
-              { tier: "Explorer", amount: "$6", period: "/mo", desc: "For people who go out regularly.", features: ["Unlimited saved trips", "Offline map downloads (10 regions)", "Smart gear checklists", "Emergency check-in schedule", "Weather sync", "Trail archive with photos"], featured: true },
-              { tier: "Expedition", amount: "$12", period: "/mo", desc: "For guides, instructors, and serious adventurers.", features: ["Everything in Explorer", "Unlimited offline regions", "Group trip sharing", "Satellite messenger integration", "Export to GPX/KML"], featured: false },
+              { tier:"Free", amount:"$0", period:"", desc:"For day trips and occasional use.", features:["3 saved trips","Basic gear checklists","1 emergency contact","Manual GPX import","7-day trip archive"], featured:false },
+              { tier:"Explorer", amount:"$6", period:"/mo", desc:"For people who go out every month.", features:["Unlimited saved trips","Offline map downloads (10 regions)","Smart gear checklists by trip type","Emergency check-in schedule","Weather forecast sync","Trip archive with photos & GPX","Condition logs for each route"], featured:true },
+              { tier:"Expedition", amount:"$12", period:"/mo", desc:"For guides, instructors, and serious adventurers.", features:["Everything in Explorer","Unlimited offline regions","Group trip sharing (10 people)","Satellite messenger integration","GPX/KML export for SAR","Priority route updates","Custom emergency protocols"], featured:false },
             ].map((p, i) => (
-              <div key={i} className={`price-card reveal ${p.featured ? "featured" : ""}`} ref={addReveal} style={{ transitionDelay: `${i * 0.08}s` }}>
+              <div key={i} className={`price-card reveal ${p.featured?"featured":""}`} ref={addReveal} style={{ transitionDelay:`${i * 0.08}s` }}>
+                {p.featured && <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:"linear-gradient(90deg,transparent,var(--trail),transparent)" }} />}
                 <div className="price-tier">{p.tier}</div>
                 <div className="price-amount">{p.amount}<span>{p.period}</span></div>
                 <div className="price-desc">{p.desc}</div>
                 <ul className="price-features">
                   {p.features.map((f, j) => <li key={j}>{f}</li>)}
                 </ul>
-                <a href="#waitlist" className={p.featured ? "btn-primary" : "btn-ghost"} style={{ width: "100%", justifyContent: "center", display: "flex" }}>
-                  Get Early Access
+                <a href="#waitlist" className={p.featured?"btn-primary":"btn-ghost"} style={{ width:"100%", justifyContent:"center", display:"flex" }}>
+                  {p.featured ? "Get Early Access →" : "Join Waitlist"}
                 </a>
               </div>
             ))}
@@ -148,24 +261,25 @@ export default function TrailDeskPage() {
         </div>
       </div>
 
-      {/* WAITLIST */}
-      <section id="waitlist" style={{ padding: "5rem 1.5rem" }}>
-        <div style={{ maxWidth: 560, margin: "0 auto", textAlign: "center" }}>
-          <p className="section-label" style={{ justifyContent: "center", display: "flex" }}>Early Access</p>
-          <h2 className="section-title" style={{ textAlign: "center" }}>Get notified when we launch.</h2>
-          <p className="section-sub" style={{ margin: "0 auto 2rem", textAlign: "center" }}>
-            Early access members get 3 months of Explorer free and direct input on features before we ship them.
+      {/* ── WAITLIST ─────────────────────────────────────────── */}
+      <section id="waitlist" style={{ padding:"5rem 1.5rem", background:"var(--bg2)", borderTop:"1px solid var(--border)" }}>
+        <div style={{ maxWidth:560, margin:"0 auto", textAlign:"center" }}>
+          <div style={{ fontSize:"2.5rem", marginBottom:"1rem" }}>🏔</div>
+          <p className="section-label" style={{ justifyContent:"center", display:"flex" }}>Early Access</p>
+          <h2 className="section-title" style={{ textAlign:"center" }}>Be first when we launch.</h2>
+          <p className="section-sub" style={{ margin:"0 auto 2rem", textAlign:"center" }}>
+            Early access members get 3 months of Explorer free and direct input on features before we ship them. No spam. One email when we launch.
           </p>
           {submitted ? (
-            <div style={{ padding: "2rem", background: "rgba(52,211,153,0.1)", borderRadius: "var(--radius)", border: "1px solid rgba(52,211,153,0.3)", color: "var(--trail)", fontWeight: 700 }}>
-              You&apos;re in. We&apos;ll let you know when it&apos;s ready.
+            <div style={{ padding:"2rem", background:"rgba(52,211,153,0.1)", borderRadius:"var(--radius)", border:"1px solid rgba(52,211,153,0.3)", color:"var(--trail)", fontWeight:700, fontSize:"1.05rem" }}>
+              ✓ You&apos;re on the list. We&apos;ll let you know when it&apos;s ready.
             </div>
           ) : (
-            <form onSubmit={(e) => { e.preventDefault(); if (email) setSubmitted(true); }} style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
+            <form onSubmit={(e) => { e.preventDefault(); if (email) setSubmitted(true); }} style={{ display:"flex", gap:"0.75rem", flexWrap:"wrap", justifyContent:"center" }}>
               <input
                 type="email" required placeholder="your@email.com" value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{ flex: "1 1 260px", padding: "0.875rem 1.25rem", borderRadius: "var(--radius-sm)", background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text)", fontSize: "0.95rem", outline: "none" }}
+                style={{ flex:"1 1 260px", padding:"0.875rem 1.25rem", borderRadius:"var(--radius-sm)", background:"var(--surface)", border:"1px solid var(--border)", color:"var(--text)", fontSize:"0.95rem", outline:"none" }}
               />
               <button type="submit" className="btn-primary">Get Early Access →</button>
             </form>
@@ -173,10 +287,13 @@ export default function TrailDeskPage() {
         </div>
       </section>
 
-      <footer style={{ borderTop: "1px solid var(--border)", padding: "3rem 1.5rem" }}>
+      <footer style={{ borderTop:"1px solid var(--border)" }}>
         <div className="footer">
-          <div className="footer-copy">TrailDesk · Built by Brian Josiah</div>
-          <a href="https://josiah.rawsignal.dev" target="_blank" rel="noopener" className="footer-link">← Back to Portfolio</a>
+          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+            <TrailDeskLogo size={24} />
+            <span className="footer-copy">TrailDesk · Built by Brian Josiah</span>
+          </div>
+          <a href="https://josiah-rawsignal.vercel.app" target="_blank" rel="noopener" className="footer-link">← Portfolio</a>
         </div>
       </footer>
     </>
