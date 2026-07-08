@@ -88,7 +88,12 @@ export default function TrailDeskPage() {
           <TrailDeskLogo size={34} />
           <span className="nav-name">TrailDesk</span>
         </a>
-        <a href="#waitlist" className="nav-cta">Get Early Access</a>
+        <div style={{ display:"flex", alignItems:"center", gap:"clamp(0.75rem,2vw,1.5rem)" }}>
+          <a href="/trips" style={{ fontSize:"0.82rem", color:"rgba(239,248,244,0.5)", textDecoration:"none", letterSpacing:"0.03em" }}>My Trips</a>
+          <a href="/plan" style={{ fontSize:"0.82rem", color:"rgba(239,248,244,0.5)", textDecoration:"none", letterSpacing:"0.03em" }}>Plan</a>
+          <a href="/gear" style={{ fontSize:"0.82rem", color:"rgba(239,248,244,0.5)", textDecoration:"none", letterSpacing:"0.03em" }}>Gear</a>
+          <a href="/plan" className="nav-cta">Start Planning →</a>
+        </div>
       </nav>
 
       {/* ── HERO ────────────────────────────────────────────── */}
