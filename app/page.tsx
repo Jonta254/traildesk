@@ -48,17 +48,18 @@ const TRIPS = [
   { name:"Tour du Mont Blanc — Day 1", region:"France/Italy/Switzerland", tags:["Archived","20km","Alpine"], cond:{ difficulty:78, exposure:88, water:70 }, status:"done", date:"Completed: Jul 2024" },
 ];
 
-const TESTIMONIALS = [
-  { text:"I've done 30+ multi-day hikes and this is the first app that actually works when I need it — underground, in a gorge, on a ridge at 2am. Offline means offline.", name:"Jake Morrison", role:"Thru-hiker · Appalachian Trail", init:"JM", color:"#34D399" },
-  { text:"The emergency contact feature gave my family actual peace of mind when I did Laugavegur alone. They got my check-in logs every 4 hours. That's not nothing.", name:"Elena Vasquez", role:"Solo hiker · 3 continents", init:"EV", color:"#60B7FF" },
-  { text:"I guide groups across the Southern Alps. Having every participant's gear checklist and emergency contact synced offline before we leave the carpark is genuinely valuable.", name:"Tom Kahu", role:"Wilderness Guide, NZ", init:"TK", color:"#C8955C" },
+// Real, well-known destinations surfaced on the /explore page.
+const EXPLORE_TEASER = [
+  "🇹🇿 Kilimanjaro", "🇰🇪 Mount Kenya", "🇿🇦 Table Mountain", "🇲🇦 Toubkal",
+  "🇳🇦 Fish River Canyon", "🇺🇬 Rwenzori", "🇪🇹 Simien Mountains", "🇲🇼 Mount Mulanje",
 ];
 
+// Design principles, stated honestly — not measured usage metrics.
 const STATS = [
-  { num:"100%", label:"Offline capable" },
-  { num:"<1%", label:"Battery per hour" },
-  { num:"All day", label:"Navigation life" },
-  { num:"50+ regions", label:"Downloaded map coverage" },
+  { num:"Offline", label:"First — no signal needed" },
+  { num:"GPS", label:"On every check-in" },
+  { num:"SOS", label:"Escalating alert chain" },
+  { num:"Free", label:"To start planning" },
 ];
 
 export default function TrailDeskPage() {
@@ -89,6 +90,7 @@ export default function TrailDeskPage() {
           <span className="nav-name">TrailDesk</span>
         </a>
         <div style={{ display:"flex", alignItems:"center", gap:"clamp(0.75rem,2vw,1.5rem)" }}>
+          <a href="/explore" style={{ fontSize:"0.82rem", color:"rgba(239,248,244,0.5)", textDecoration:"none", letterSpacing:"0.03em" }}>Explore</a>
           <a href="/trips" style={{ fontSize:"0.82rem", color:"rgba(239,248,244,0.5)", textDecoration:"none", letterSpacing:"0.03em" }}>My Trips</a>
           <a href="/plan" style={{ fontSize:"0.82rem", color:"rgba(239,248,244,0.5)", textDecoration:"none", letterSpacing:"0.03em" }}>Plan</a>
           <a href="/gear" style={{ fontSize:"0.82rem", color:"rgba(239,248,244,0.5)", textDecoration:"none", letterSpacing:"0.03em" }}>Gear</a>
@@ -117,8 +119,8 @@ export default function TrailDeskPage() {
         </p>
 
         <div className="hero-actions">
-          <a href="#waitlist" className="btn-primary">Join the Waitlist →</a>
-          <a href="#features" className="btn-ghost">See Features ↓</a>
+          <a href="/explore" className="btn-primary">Explore destinations →</a>
+          <a href="#waitlist" className="btn-ghost">Join the waitlist</a>
         </div>
 
         {/* Stats strip */}
@@ -215,25 +217,20 @@ export default function TrailDeskPage() {
 
       <div className="topo-rule" />
 
-      {/* ── TESTIMONIALS ────────────────────────────────────── */}
+      {/* ── EXPLORE TEASER ──────────────────────────────────── */}
       <div style={{ background:"var(--bg2)", padding:"5rem 1.5rem", borderTop:"1px solid var(--border)" }}>
-        <div style={{ maxWidth:1100, margin:"0 auto" }}>
-          <p className="section-label reveal" ref={addReveal} style={{ textAlign:"center" }}>From the trail</p>
-          <h2 className="section-title reveal" ref={addReveal} style={{ textAlign:"center", marginBottom:"2.5rem" }}>People who take it seriously.</h2>
-          <div className="testi-grid">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="testi-card reveal" ref={addReveal} style={{ transitionDelay:`${i*0.08}s` }}>
-                <div className="testi-text">&ldquo;{t.text}&rdquo;</div>
-                <div className="testi-author">
-                  <div className="testi-avatar" style={{ background:`linear-gradient(135deg,${t.color},${t.color}88)` }}>{t.init}</div>
-                  <div>
-                    <div className="testi-name">{t.name}</div>
-                    <div className="testi-role">{t.role}</div>
-                  </div>
-                </div>
-              </div>
+        <div style={{ maxWidth:1100, margin:"0 auto", textAlign:"center" }}>
+          <p className="section-label reveal" style={{ textAlign:"center", justifyContent:"center" }}>Explore</p>
+          <h2 className="section-title reveal" style={{ textAlign:"center", marginBottom:"1rem" }}>Real trails, mapped and ready.</h2>
+          <p className="section-sub reveal" style={{ margin:"0 auto 2.5rem", textAlign:"center" }}>
+            Start from well-known routes across Africa. Open any one on Google Maps, get directions, then save it as a trip to plan your gear and check-ins.
+          </p>
+          <div className="reveal" style={{ display:"flex", flexWrap:"wrap", gap:"0.6rem", justifyContent:"center", marginBottom:"2.25rem" }}>
+            {EXPLORE_TEASER.map((t) => (
+              <span key={t} style={{ fontSize:"0.85rem", fontWeight:600, color:"var(--text)", background:"var(--surface)", border:"1px solid var(--border-trail)", borderRadius:"100px", padding:"7px 15px" }}>{t}</span>
             ))}
           </div>
+          <a href="/explore" className="btn-primary reveal">Explore all destinations →</a>
         </div>
       </div>
 

@@ -138,6 +138,7 @@ export default function GearPage() {
           <span style={{ fontWeight:700, fontSize:"0.95rem", color:"var(--text)" }}>TrailDesk</span>
         </Link>
         <div className="nav-links">
+          <Link href="/explore" className="nav-link">Explore</Link>
           <Link href="/trips" className="nav-link">My Trips</Link>
           <Link href="/plan" className="nav-link">Plan a Trip</Link>
           <Link href="/gear" className="nav-link active">Gear Lists</Link>
