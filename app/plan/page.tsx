@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { findDestination, destinationPrefill } from "@/app/lib/destinations";
 
 function Logo({ size = 28 }: { size?: number }) {
   return (
@@ -57,6 +58,7 @@ export default function PlanPage() {
   const [gpsCoords, setGpsCoords] = useState<GpsCoords | null>(null);
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
+  const [fromExplore, setFromExplore] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: "", region: "", date: "", duration: "", distance: "",
@@ -64,6 +66,29 @@ export default function PlanPage() {
     gear: [] as string[],
     newGear: "",
   });
+
+  /* ── Prefill from /explore ("Save as trip" → /plan?dest=<id>) ──────
+     Read the destination id on mount, populate Step 1 and load the
+     matching gear template. Every value comes from the real destination
+     record — nothing fabricated. Idempotent, so it's safe under Strict
+     Mode's double effect invocation. ──────────────────────────────── */
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("dest");
+    const dest = findDestination(id);
+    if (!dest) return;
+    const p = destinationPrefill(dest);
+    setForm(prev => ({
+      ...prev,
+      name: p.name,
+      region: p.region,
+      type: p.type,
+      duration: p.duration,
+      distance: p.distance,
+      notes: p.notes,
+      gear: [...(GEAR_TEMPLATES[p.type] ?? [])],
+    }));
+    setFromExplore(dest.name);
+  }, []);
 
   const set = (k: keyof typeof form, v: string | string[]) =>
     setForm(prev => ({ ...prev, [k]: v }));
@@ -148,6 +173,7 @@ export default function PlanPage() {
     setGpsCoords(null);
     setGpsError(null);
     setGpsLoading(false);
+    setFromExplore(null);
     setForm({
       name: "", region: "", date: "", duration: "", distance: "",
       type: "Day Hike", notes: "", emergencyName: "", emergencyPhone: "",
@@ -217,6 +243,21 @@ export default function PlanPage() {
           <h1 style={{ fontSize:"clamp(1.4rem,3vw,2rem)", fontWeight:700, marginBottom:4 }}>Plan a Trip</h1>
           <p style={{ color:"var(--text-dim)", fontSize:"0.875rem" }}>Route, gear, and emergency contacts — sorted before you leave the carpark.</p>
         </div>
+
+        {fromExplore && !saved && (
+          <div style={{
+            display:"flex", alignItems:"center", gap:10, flexWrap:"wrap",
+            background:"rgba(52,211,153,0.06)", border:"1px solid rgba(52,211,153,0.25)",
+            borderLeft:"2px solid rgba(52,211,153,0.6)", borderRadius:10,
+            padding:"11px 15px", marginBottom:"clamp(1rem,2.5vw,1.5rem)",
+          }}>
+            <span aria-hidden style={{ fontSize:"1.05rem" }}>🗺</span>
+            <span style={{ fontSize:"0.84rem", color:"var(--text-dim)" }}>
+              Started from Explore — <strong style={{ color:"var(--trail)" }}>{fromExplore}</strong>. Route details are filled in; add your gear and check-ins below.
+            </span>
+            <Link href="/explore" style={{ fontSize:"0.78rem", color:"var(--text-mute)", textDecoration:"none", marginLeft:"auto" }}>← Back to Explore</Link>
+          </div>
+        )}
 
         {/* Step indicator */}
         <div className="step-indicator">

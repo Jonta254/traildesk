@@ -1,6 +1,13 @@
 "use client";
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import {
+  DESTINATIONS,
+  type Difficulty,
+  mapsSearchUrl,
+  mapsDirectionsUrl,
+  mapsEmbedUrl,
+} from "@/app/lib/destinations";
 
 /* ── Brand mark (shared visual identity) ─────────────── */
 function Logo({ size = 30 }: { size?: number }) {
@@ -20,114 +27,6 @@ function Logo({ size = 30 }: { size?: number }) {
   );
 }
 
-/* ── Data: real, well-known trekking destinations across Africa.
-   Every entry is a genuine place. `query` is a specific, unambiguous
-   string used to build official Google Maps URLs and an embedded map —
-   so a user can view the location and get real directions. No invented
-   places, coordinates, or statistics. ─────────────────────────────── */
-type Difficulty = "Moderate" | "Hard" | "Expert";
-
-interface Destination {
-  id: string;
-  name: string;
-  country: string;
-  flag: string;
-  type: string;
-  headline: string; // key figure (elevation / length)
-  duration: string;
-  difficulty: Difficulty;
-  bestSeason: string;
-  description: string;
-  query: string; // exact Google Maps search string
-}
-
-const DESTINATIONS: Destination[] = [
-  {
-    id: "kilimanjaro", name: "Mount Kilimanjaro", country: "Tanzania", flag: "🇹🇿",
-    type: "Summit trek", headline: "5,895 m", duration: "5–9 days", difficulty: "Expert",
-    bestSeason: "Jan–Mar · Jun–Oct",
-    description: "Africa's highest point and the tallest free-standing mountain on Earth. The climb to Uhuru Peak is non-technical, but altitude is the real test — routes such as Machame and Marangu pass through five climate zones from rainforest to arctic summit.",
-    query: "Mount Kilimanjaro, Tanzania",
-  },
-  {
-    id: "mount-kenya", name: "Mount Kenya (Point Lenana)", country: "Kenya", flag: "🇰🇪",
-    type: "Summit trek", headline: "4,985 m", duration: "4–5 days", difficulty: "Hard",
-    bestSeason: "Jan–Feb · Aug–Sep",
-    description: "The trekking summit Point Lenana sits at 4,985 m; the true peaks Batian and Nelion are technical rock climbs. A UNESCO World Heritage site of glaciers, tarns and Afro-alpine moorland.",
-    query: "Mount Kenya National Park, Kenya",
-  },
-  {
-    id: "table-mountain", name: "Table Mountain", country: "South Africa", flag: "🇿🇦",
-    type: "Day hike", headline: "1,085 m", duration: "2–3 hr ascent", difficulty: "Moderate",
-    bestSeason: "Year-round",
-    description: "Cape Town's flat-topped landmark above the city. The Platteklip Gorge route is a steep, direct two-to-three-hour ascent; the cableway offers an easy descent when the wind picks up.",
-    query: "Table Mountain, Cape Town, South Africa",
-  },
-  {
-    id: "simien", name: "Simien Mountains (Ras Dashen)", country: "Ethiopia", flag: "🇪🇹",
-    type: "Multi-day trek", headline: "4,543 m", duration: "4–10 days", difficulty: "Hard",
-    bestSeason: "Oct–Mar",
-    description: "Ethiopia's dramatic escarpment and its highest peak, Ras Dashen. Trekked with a local guide and scout, famous for troops of gelada and thousand-metre cliff edges.",
-    query: "Simien Mountains National Park, Ethiopia",
-  },
-  {
-    id: "toubkal", name: "Mount Toubkal", country: "Morocco", flag: "🇲🇦",
-    type: "Summit trek", headline: "4,167 m", duration: "2 days", difficulty: "Hard",
-    bestSeason: "Apr–Oct",
-    description: "The highest peak in North Africa, reached from the village of Imlil in the High Atlas. A classic two-day trek via the mountain refuge; winter ascents require crampons and an ice axe.",
-    query: "Mount Toubkal, Morocco",
-  },
-  {
-    id: "drakensberg", name: "Drakensberg Amphitheatre", country: "South Africa", flag: "🇿🇦",
-    type: "Day / multi-day", headline: "~3,000 m", duration: "1–2 days", difficulty: "Hard",
-    bestSeason: "Mar–May · Sep–Nov",
-    description: "The vast Amphitheatre escarpment and Tugela Falls, among the highest waterfalls in the world. The chain-ladder route tops out onto the summit plateau of the Northern Drakensberg.",
-    query: "Amphitheatre, Drakensberg, South Africa",
-  },
-  {
-    id: "rwenzori", name: "Rwenzori (Margherita Peak)", country: "Uganda", flag: "🇺🇬",
-    type: "Expedition", headline: "5,109 m", duration: "7–9 days", difficulty: "Expert",
-    bestSeason: "Jun–Aug · Dec–Feb",
-    description: "The glaciated 'Mountains of the Moon' on the Uganda–DRC border. Reaching Margherita Peak is a full expedition through bog, montane rainforest and permanent ice.",
-    query: "Rwenzori Mountains National Park, Uganda",
-  },
-  {
-    id: "meru", name: "Mount Meru", country: "Tanzania", flag: "🇹🇿",
-    type: "Summit trek", headline: "4,562 m", duration: "3–4 days", difficulty: "Hard",
-    bestSeason: "Jun–Feb",
-    description: "Tanzania's second-highest mountain and a superb acclimatisation trek before Kilimanjaro. A narrow summit ridge is walked in the dark to reach the crater rim at dawn.",
-    query: "Mount Meru, Arusha, Tanzania",
-  },
-  {
-    id: "fish-river", name: "Fish River Canyon", country: "Namibia", flag: "🇳🇦",
-    type: "Multi-day trail", headline: "~85 km", duration: "4–5 days", difficulty: "Expert",
-    bestSeason: "May–Sep (trail open)",
-    description: "One of the largest canyons on Earth. The roughly 85 km trail is unsupported and permit-only, open in the cooler months — remote, self-sufficient desert trekking with no exit points.",
-    query: "Fish River Canyon, Namibia",
-  },
-  {
-    id: "longonot", name: "Mount Longonot", country: "Kenya", flag: "🇰🇪",
-    type: "Day hike", headline: "2,776 m", duration: "4–5 hr loop", difficulty: "Moderate",
-    bestSeason: "Jun–Feb",
-    description: "A dormant volcano above Lake Naivasha with a full crater-rim circuit. A popular half-day loop, close to Nairobi, with panoramic views across the Great Rift Valley.",
-    query: "Mount Longonot National Park, Kenya",
-  },
-  {
-    id: "mulanje", name: "Mount Mulanje (Sapitwa)", country: "Malawi", flag: "🇲🇼",
-    type: "Multi-day trek", headline: "3,002 m", duration: "2–4 days", difficulty: "Hard",
-    bestSeason: "May–Oct",
-    description: "The highest massif in Central Africa, rising sharply from the surrounding plains. Sapitwa Peak is reached over granite slabs, with basic mountain huts spaced along the routes.",
-    query: "Mount Mulanje, Malawi",
-  },
-  {
-    id: "hells-gate", name: "Hell's Gate National Park", country: "Kenya", flag: "🇰🇪",
-    type: "Day walk / cycle", headline: "Gorges & geothermal", duration: "3–5 hr", difficulty: "Moderate",
-    bestSeason: "Year-round",
-    description: "One of the few Kenyan parks you can explore on foot or by bicycle, winding among red gorges, geothermal steam vents and grazing wildlife near Lake Naivasha.",
-    query: "Hell's Gate National Park, Kenya",
-  },
-];
-
 const DIFF_META: Record<Difficulty, { color: string; rgb: string }> = {
   Moderate: { color: "#34D399", rgb: "52,211,153" },
   Hard: { color: "#C8955C", rgb: "200,149,92" },
@@ -135,16 +34,6 @@ const DIFF_META: Record<Difficulty, { color: string; rgb: string }> = {
 };
 
 const DIFF_FILTERS = ["All", "Moderate", "Hard", "Expert"] as const;
-
-function mapsSearchUrl(query: string) {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-}
-function mapsDirectionsUrl(query: string) {
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
-}
-function mapsEmbedUrl(query: string) {
-  return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=8&output=embed`;
-}
 
 export default function ExplorePage() {
   const [search, setSearch] = useState("");
@@ -228,6 +117,7 @@ export default function ExplorePage() {
         .xp-btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
         .xp-btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border-trail)}
         .xp-btn-ghost:hover{border-color:rgba(52,211,153,0.5)}
+        .xp-save-hint{margin-top:0.7rem;font-size:0.74rem;color:var(--text-mute);line-height:1.5}
 
         .xp-empty{grid-column:1/-1;text-align:center;padding:4rem 1rem;color:var(--text-dim)}
         .xp-empty button{background:none;border:none;color:var(--trail);cursor:pointer;font-size:0.9rem}
@@ -351,13 +241,17 @@ export default function ExplorePage() {
                       />
                     </div>
                     <div className="xp-actions">
-                      <a className="xp-btn xp-btn-primary" href={mapsDirectionsUrl(d.query)} target="_blank" rel="noopener noreferrer">
+                      <Link className="xp-btn xp-btn-primary" href={`/plan?dest=${d.id}`}>
+                        🗺 Save as trip
+                      </Link>
+                      <a className="xp-btn xp-btn-ghost" href={mapsDirectionsUrl(d.query)} target="_blank" rel="noopener noreferrer">
                         🧭 Get directions
                       </a>
                       <a className="xp-btn xp-btn-ghost" href={mapsSearchUrl(d.query)} target="_blank" rel="noopener noreferrer">
                         📍 Open in Google Maps
                       </a>
                     </div>
+                    <p className="xp-save-hint">Prefills the planner with this route — then add your gear and emergency check-ins.</p>
                   </div>
                 )}
               </article>
