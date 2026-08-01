@@ -8,6 +8,7 @@ import {
   mapsDirectionsUrl,
   mapsEmbedUrl,
 } from "@/app/lib/destinations";
+import { PHOTO_CREDITS } from "@/app/lib/photo-credits";
 
 /* ── Brand mark (shared visual identity) ─────────────── */
 function Logo({ size = 30 }: { size?: number }) {
@@ -94,11 +95,15 @@ export default function ExplorePage() {
         .xp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color 220ms,box-shadow 220ms}
         .xp-card:hover{border-color:var(--border-trail);box-shadow:0 6px 30px rgba(0,0,0,0.35)}
         .xp-card.open{border-color:rgba(52,211,153,0.35)}
+        .xp-photo{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--bg3)}
+        .xp-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 600ms cubic-bezier(0.22,1,0.36,1)}
+        .xp-card:hover .xp-photo img{transform:scale(1.045)}
+        .xp-photo::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 -46px 46px -24px rgba(6,12,10,0.7)}
+        .xp-photo-badge{position:absolute;top:10px;right:10px;font-size:0.64rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:4px 11px;border-radius:100px;box-shadow:0 2px 10px rgba(0,0,0,0.35)}
         .xp-card-head{width:100%;text-align:left;background:none;border:none;color:inherit;cursor:pointer;padding:1.15rem 1.25rem;display:flex;flex-direction:column;gap:0.6rem;font-family:inherit}
         .xp-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem}
         .xp-place{font-size:1.02rem;font-weight:800;line-height:1.25}
         .xp-country{font-size:0.75rem;color:var(--text-mute);font-family:'JetBrains Mono',monospace;letter-spacing:0.03em;margin-top:3px;display:flex;align-items:center;gap:6px}
-        .xp-diff-badge{flex-shrink:0;font-size:0.66rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:3px 9px;border-radius:100px}
         .xp-chips{display:flex;flex-wrap:wrap;gap:0.4rem}
         .xp-chip{font-size:0.72rem;font-family:'JetBrains Mono',monospace;color:var(--text-dim);background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:3px 9px;letter-spacing:0.02em}
         .xp-caret{font-size:0.85rem;color:var(--text-mute);align-self:center}
@@ -118,6 +123,9 @@ export default function ExplorePage() {
         .xp-btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border-trail)}
         .xp-btn-ghost:hover{border-color:rgba(52,211,153,0.5)}
         .xp-save-hint{margin-top:0.7rem;font-size:0.74rem;color:var(--text-mute);line-height:1.5}
+        .xp-credit{margin-top:0.85rem;padding-top:0.7rem;border-top:1px solid var(--border);font-size:0.68rem;color:var(--text-mute);line-height:1.55}
+        .xp-credit a{color:var(--text-dim);text-decoration:underline;text-underline-offset:2px}
+        .xp-credit a:hover{color:var(--trail)}
 
         .xp-empty{grid-column:1/-1;text-align:center;padding:4rem 1rem;color:var(--text-dim)}
         .xp-empty button{background:none;border:none;color:var(--trail);cursor:pointer;font-size:0.9rem}
@@ -203,6 +211,17 @@ export default function ExplorePage() {
             const dm = DIFF_META[d.difficulty];
             return (
               <article key={d.id} className={`xp-card${open ? " open" : ""}`}>
+                <div className="xp-photo">
+                  <img
+                    src={`/explore/${d.id}.jpg`}
+                    alt={`${d.name}, ${d.country}`}
+                    loading="lazy"
+                    decoding="async"
+                    width={1100}
+                    height={640}
+                  />
+                  <span className="xp-photo-badge" style={{ background: `rgba(${dm.rgb},0.9)`, color: "#04120B" }}>{d.difficulty}</span>
+                </div>
                 <button
                   className="xp-card-head"
                   onClick={() => setOpenId(open ? null : d.id)}
@@ -214,7 +233,6 @@ export default function ExplorePage() {
                       <div className="xp-place">{d.name}</div>
                       <div className="xp-country">{d.flag} {d.country}</div>
                     </div>
-                    <span className="xp-diff-badge" style={{ background: `rgba(${dm.rgb},0.14)`, color: dm.color, border: `1px solid rgba(${dm.rgb},0.35)` }}>{d.difficulty}</span>
                   </div>
                   <div className="xp-chips">
                     <span className="xp-chip">🥾 {d.type}</span>
@@ -252,6 +270,17 @@ export default function ExplorePage() {
                       </a>
                     </div>
                     <p className="xp-save-hint">Prefills the planner with this route — then add your gear and emergency check-ins.</p>
+                    {PHOTO_CREDITS[d.id] && (
+                      <p className="xp-credit">
+                        Photo: {PHOTO_CREDITS[d.id].author} ·{" "}
+                        {PHOTO_CREDITS[d.id].licenseUrl ? (
+                          <a href={PHOTO_CREDITS[d.id].licenseUrl} target="_blank" rel="noopener noreferrer">{PHOTO_CREDITS[d.id].license}</a>
+                        ) : (
+                          PHOTO_CREDITS[d.id].license
+                        )}{" · "}
+                        <a href={PHOTO_CREDITS[d.id].source} target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>
+                      </p>
+                    )}
                   </div>
                 )}
               </article>
