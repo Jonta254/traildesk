@@ -1,21 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "TrailDesk", template: "%s · TrailDesk" },
-  description: "Offline-first trip planning for people who take going outside seriously. Route mapping, gear checklists, emergency contacts, and trail archives — all available without signal.",
-  keywords: ["offline trip planning", "hiking app", "trail planning", "backcountry navigation", "gear checklist", "emergency contacts"],
-  openGraph: {
-    title: "TrailDesk — Trip Planning That Works Without Signal",
-    description: "Offline-first route mapping, gear checklists, and emergency planning for serious hikers and trail runners.",
-    type: "website",
-  },
+  metadataBase: new URL("https://traildesk.vercel.app"),
+  title: { default: "TrailDesk — Plan African treks with clarity", template: "%s · TrailDesk" },
+  description: "A practical browser-based workspace for researching African trekking destinations, building trip plans, and preparing gear lists.",
+  applicationName: "TrailDesk",
+  keywords: ["African trekking", "trip planner", "hiking gear checklist", "trek research"],
+  openGraph: { title: "TrailDesk", description: "Research destinations. Build a practical trek plan. Keep it on this device.", type: "website", locale: "en" },
+  robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
+export const viewport: Viewport = { width: "device-width", initialScale: 1, colorScheme: "dark", themeColor: "#0b0e0c" };
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return <html lang="en"><body>{children}</body></html>;
 }
