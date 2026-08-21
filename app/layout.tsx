@@ -1,12 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./stage.css";
+import "./product.css";
+import "./fixes.css";
+import "./touch.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://traildesk.vercel.app"),
-  title: { default: "TrailDesk — Plan African treks with clarity", template: "%s · TrailDesk" },
-  description: "A practical browser-based workspace for researching African trekking destinations, building trip plans, and preparing gear lists.",
+  title: { default: "TrailDesk — International trail research and trip planning", template: "%s · TrailDesk" },
+  description: "A practical international trail discovery and trip-preparation workspace with official references and browser-local planning.",
   applicationName: "TrailDesk",
-  keywords: ["African trekking", "trip planner", "hiking gear checklist", "trek research"],
+  keywords: ["international trekking", "trail research", "trip planner", "hiking gear checklist"],
   openGraph: { title: "TrailDesk", description: "Research destinations. Build a practical trek plan. Keep it on this device.", type: "website", locale: "en" },
   robots: { index: true, follow: true },
 };

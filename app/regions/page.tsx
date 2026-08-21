@@ -1,0 +1,6 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { AppShell } from "@/components/app-shell";
+import { CONTINENTS, DESTINATIONS } from "@/app/lib/destinations";
+export const metadata={title:"Trail regions",description:"Browse TrailDesk destinations by continent."};
+export default function RegionsPage(){return <AppShell><main id="main-content"><header className="page-header"><div className="container"><p className="eyebrow">Global catalogue</p><h1>Six regions. Different decisions.</h1><p className="lede">Africa remains TrailDesk’s largest foundation. The international catalogue adds carefully sourced routes without pretending they share the same access, terrain, or planning pattern.</p></div></header><div className="container" style={{paddingBlock:"var(--space-7)"}}><div className="region-list">{CONTINENTS.map(continent=>{const items=DESTINATIONS.filter(d=>d.continent===continent);return <section key={continent}><p className="eyebrow">{items.length} destinations</p><h2>{continent}</h2><p>{Array.from(new Set(items.map(d=>d.country))).join(" · ")}</p><Link href={`/explore?continent=${encodeURIComponent(continent)}`}>Browse {continent} <ArrowRight size={15}/></Link></section>})}</div></div></main></AppShell>}

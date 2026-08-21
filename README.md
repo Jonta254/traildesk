@@ -1,69 +1,59 @@
-﻿# TrailDesk
+# TrailDesk
 
-TrailDesk is a practical planning workspace for researching and preparing African treks. It is a Next.js application that combines a curated destination catalogue with browser-local trip plans and reusable gear checklists.
+TrailDesk is a practical international trail discovery and trip-preparation workspace. It combines a structured, cited destination catalogue with browser-local trip records, gear reviews, and unpublished traveller-review drafts.
 
-## What works today
+## Current product
 
-- Browse 12 established African trekking destinations.
-- Search by place, country, or trek type and filter by broad difficulty.
-- Inspect credited local photography and general destination context.
-- Open Google Maps embeds and external directions while online.
-- Start a trip plan from a destination or from a blank form.
-- Save route notes, dates, optional coordinates, contact-plan notes, and gear locally.
-- Filter saved trips, update their status, and delete them with confirmation.
-- Use and customise four reusable gear-list templates.
+- Search and filter 36 destinations across Africa, Europe, Asia, North America, South America, and Oceania.
+- Open a statically generated editorial guide for every destination.
+- Review coordinates, precision labels, real Google Maps searches and directions, and official-reference links.
+- Start an editable plan with only reliable destination context prefilled.
+- Create, edit, duplicate, search, sort, update, copy, print, export, and import browser-local trips.
+- Review ten structured gear templates with base, consumable, worn, and total selected weight.
+- Prepare a local traveller-review draft. No review is published and no aggregate rating is displayed.
 
-## What TrailDesk does not do
+Africa remains the catalogue's largest regional collection with 12 destinations and 12 credited local photographs. International entries without a completed local photography licence review use a geographic coordinate treatment instead of a fabricated or miscredited image.
 
-TrailDesk is not an emergency response, tracking, or navigation service. It does not download offline maps, monitor GPS, detect missed check-ins, send SMS alerts, synchronise weather, import or export GPX files, share plans, provide accounts, or synchronise data between devices. There is no subscription or checkout system.
+## Product boundaries
 
-Google Maps requires an internet connection. All destination information is a research starting point; users must confirm current access, route conditions, permits, guide requirements, and safety advice with official park authorities and qualified local operators.
+TrailDesk is not a booking service, navigation system, live tracker, weather provider, emergency-response service, guide marketplace, park authority, or social network. It does not draw route polylines, download offline maps, verify conditions, contact emergency contacts, or publish review drafts.
 
-## Local setup
+Google Maps and external official sources require internet. A location pin identifies a stated destination, access area, or trailhead; it is not a complete hiking route.
 
-Requirements: Node.js 22 and pnpm 10.
+## Local storage and compatibility
+
+- Trips preserve the existing `traildesk_trips` key and migrate compatible version-one records into schema version 2 when read.
+- Gear preserves the existing `traildesk_gear_v1` key.
+- Review drafts use one `traildesk_review_draft_v1_<destination-id>` key per destination.
+
+All three remain in the current browser profile. There is no account, cloud backup, cross-device sync, moderation database, or server recovery. Trip backup export and validated import are available.
+
+## Data and photography
+
+Each destination record includes coordinates with a precision label, structured route facts, planning notes, official-source links, related routes, and a `lastReviewedAt` date. `validateDestinations` checks IDs, slugs, coordinates, difficulty and continent values, official sources, image paths, and related IDs.
+
+Verified African photographs are stored in `public/explore`. Credits are exposed in the interface and in `public/explore/credits.json`. Do not add a photograph without recording its author, source, and licence.
+
+## Development
+
+Requires Node.js 22 and pnpm 10.
 
 ```bash
-pnpm install
-pnpm dev
-```
-
-Open `http://localhost:3000`.
-
-## Quality scripts
-
-```bash
+pnpm install --frozen-lockfile
 pnpm lint
 pnpm typecheck
+pnpm test
 pnpm build
-pnpm check
 ```
-
-GitHub Actions runs install, lint, type checking, and a production build for pushes and pull requests targeting `master`.
-
-## Browser storage
-
-Trip plans use the `traildesk_trips` localStorage key. Reusable gear-list state uses `traildesk_gear_v1`. Data remains in the current browser profile only. Clearing site data, using private browsing, changing devices, or changing browsers may remove or isolate it. TrailDesk has no server backup.
-
-Existing trip records are read defensively so corrupted or unavailable browser storage does not prevent the application from loading. Deletion always requires confirmation.
-
-## Photo attribution
-
-Destination photographs are stored in `public/explore`. Attribution is displayed with each expanded destination and documented in `public/explore/credits.json`. Preserve these records when changing imagery.
 
 ## Production roadmap
 
-Future infrastructure should be treated as separate, security-reviewed work:
+The following require separate infrastructure and policy work:
 
-1. Versioned account storage, export, deletion, and cross-device sync.
-2. Authoritative destination sources with review dates and structured citations.
-3. A genuine offline mapping and GPX architecture with licensed map data.
-4. Weather providers, freshness indicators, and failure states.
-5. Explicitly consented sharing and contact workflows.
-6. Safety and privacy review before any tracking or alert capability is described as operational.
-7. Automated unit, integration, accessibility, and end-to-end tests.
-
-## Safety limitation
-
-Do not use TrailDesk as the sole record of a route or emergency plan. Carry appropriate maps, navigation tools, communications equipment, and emergency equipment; share plans through a dependable channel; and follow local professional guidance.
-
+1. A moderation backend and genuine published-review retrieval.
+2. Accounts, encrypted server storage, export/deletion controls, and cross-device sync.
+3. Licensed offline map tiles, GPX architecture, and specialist navigation review.
+4. Current weather and closure providers with freshness and failure states.
+5. Real guide, permit, booking, or emergency integrations.
+6. A completed licence review and locally hosted photography set for every international record.
+7. Ongoing editorial review with responsible regional authorities.

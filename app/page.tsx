@@ -6,13 +6,13 @@ import { StatusBadge } from "@/components/status-badge";
 import { DESTINATIONS } from "@/app/lib/destinations";
 import { PHOTO_CREDITS } from "@/app/lib/photo-credits";
 import "./home.css";
+import "./home-stage.css";
 
 const highlightIds = ["mount-kenya", "kilimanjaro", "rwenzori", "simien", "fish-river", "longonot"];
 const highlights = highlightIds.flatMap((id) => {
   const destination = DESTINATIONS.find((item) => item.id === id);
   return destination ? [destination] : [];
 });
-const countryCount = new Set(DESTINATIONS.map((destination) => destination.country)).size;
 
 const currentCapabilities = [
   ["Research", "Compare established destinations using a shared catalogue of practical context."],
@@ -39,15 +39,16 @@ export default function HomePage() {
           <div className="home-hero-shade" aria-hidden="true" />
           <div className="home-hero-inner">
             <div className="home-hero-copy">
-              <p className="eyebrow">African trek planning</p>
-              <h1 id="home-title">Plan the trail before you leave signal.</h1>
-              <p className="home-hero-lede">Research the route, prepare your gear, record the details your group needs, and keep a clear trip brief on your device.</p>
+              <p className="eyebrow">Trail research · trip preparation</p>
+              <h1 id="home-title">Know the trail before you commit to it.</h1>
+              <p className="home-hero-lede">Compare real trekking destinations, understand what each route demands, and build a practical trip brief before departure.</p>
               <div className="home-actions">
                 <Link className="button button-primary" href="/explore">Explore destinations <ArrowRight size={17} aria-hidden="true" /></Link>
-                <Link className="button home-secondary-action" href="/plan">Build a trip plan</Link>
+                <Link className="button home-secondary-action" href="/plan">Plan a trip</Link>
               </div>
-              <p className="home-capability-line">{DESTINATIONS.length} researched destinations <span aria-hidden="true">/</span> {countryCount} African countries <span aria-hidden="true">/</span> Browser-local trip records</p>
+              <p className="home-capability-line">Real destinations <span aria-hidden="true">/</span> Credited photography <span aria-hidden="true">/</span> Browser-local planning</p>
             </div>
+            <aside className="home-featured-brief" aria-label="Featured trail brief"><p>Featured trail brief</p><h2>Mount Kilimanjaro</h2><dl><div><dt>Highest point</dt><dd>{DESTINATIONS.find((d) => d.id === "kilimanjaro")?.highestPoint}</dd></div><div><dt>Typical time</dt><dd>{DESTINATIONS.find((d) => d.id === "kilimanjaro")?.typicalDuration}</dd></div><div><dt>Common season</dt><dd>{DESTINATIONS.find((d) => d.id === "kilimanjaro")?.seasonSummary}</dd></div><div><dt>Map reference</dt><dd>-3.067 / 37.356</dd></div></dl><Link href="/explore/kilimanjaro">Read the trail guide <ArrowRight size={15} /></Link></aside>
             <p className="home-hero-credit">Photo: {heroCredit.author} · <a href={heroCredit.source} target="_blank" rel="noopener noreferrer">{heroCredit.license}</a></p>
           </div>
         </section>
@@ -152,7 +153,7 @@ export default function HomePage() {
         </section>
 
         <section className="home-final-cta" aria-labelledby="start-heading">
-          <div className="container"><p className="eyebrow">Start with the route</p><h2 id="start-heading">Research first. Then make the plan yours.</h2><div className="home-actions"><Link className="button button-primary" href="/explore">Explore destinations <ArrowRight size={17} aria-hidden="true" /></Link><Link className="button" href="/plan">Build a trip plan</Link></div></div>
+          <div className="container"><p className="eyebrow">Start with the route</p><h2 id="start-heading">Research first. Then make the plan yours.</h2><div className="home-actions"><Link className="button button-primary" href="/explore">Explore destinations <ArrowRight size={17} aria-hidden="true" /></Link><Link className="button" href="/plan">Plan a trip</Link></div></div>
         </section>
       </main>
     </AppShell>

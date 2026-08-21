@@ -1,56 +1,33 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, Map, Search } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { ArrowRight, Search, SlidersHorizontal, X } from "lucide-react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
-import { DESTINATIONS, mapsDirectionsUrl, mapsEmbedUrl, mapsSearchUrl } from "@/app/lib/destinations";
-import { PHOTO_CREDITS } from "@/app/lib/photo-credits";
+import { CONTINENTS, DESTINATIONS, type Continent, type Difficulty } from "@/app/lib/destinations";
 
-const filters = ["All", "Moderate", "Hard", "Expert"] as const;
-type Filter = (typeof filters)[number];
+type DurationFilter = "all" | "day" | "short" | "long";
+type Sort = "recommended" | "easy" | "hard" | "short" | "long" | "high";
+const difficultyRank: Record<Difficulty, number> = { Moderate: 1, Hard: 2, Expert: 3 };
+const durationDays = (value: string) => { const numbers = value.match(/\d+/g)?.map(Number) ?? []; if (/hour|day route/i.test(value)) return 1; if (/week|month/i.test(value)) return 30; return Math.max(...numbers, 1); };
+const elevation = (value: string) => Number(value.replace(/,/g, "").match(/\d{3,5}/)?.[0] ?? 0);
 
 export default function ExplorePage() {
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<Filter>("All");
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const deferredQuery = useDeferredValue(query.trim().toLowerCase());
-  const results = useMemo(() => DESTINATIONS.filter((destination) => {
-    const matchesDifficulty = filter === "All" || destination.difficulty === filter;
-    const haystack = `${destination.name} ${destination.country} ${destination.type} ${destination.description}`.toLowerCase();
-    return matchesDifficulty && (!deferredQuery || haystack.includes(deferredQuery));
-  }), [deferredQuery, filter]);
-
-  return (
-    <AppShell>
-      <main id="main-content">
-        <header className="page-header"><div className="container"><p className="eyebrow">Destination catalogue</p><h1>Research African treks.</h1><p className="lede">A curated starting set of established destinations. Details are orientation notes, not live trail reports. Confirm every route with official sources before travel.</p></div></header>
-        <div className="container">
-          <div className="notice"><strong>Maps require internet.</strong> TrailDesk embeds Google Maps for orientation and links out for directions. It does not download maps or provide offline navigation.</div>
-          <section className="controls" aria-label="Destination filters">
-            <div className="field" style={{ marginBottom: 0 }}><label htmlFor="destination-search">Search destinations</label><div style={{ position: "relative" }}><Search size={17} aria-hidden="true" style={{ position:"absolute",left:12,top:14,color:"var(--ink-faint)" }} /><input id="destination-search" className="input" style={{ paddingLeft:38 }} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Place, country, or trek type" /></div></div>
-            <div><span className="field-label">Difficulty</span><div className="filter-group" role="group" aria-label="Filter by difficulty">{filters.map((value) => <button type="button" className="filter-button" aria-pressed={filter === value} onClick={() => setFilter(value)} key={value}>{value}</button>)}</div></div>
-          </section>
-          <p aria-live="polite" className="eyebrow">{results.length} {results.length === 1 ? "destination" : "destinations"}</p>
-          {results.length === 0 ? <div className="empty-state"><h2>No matching destination</h2><p>Try another place name or clear the difficulty filter.</p><button className="button" onClick={() => { setQuery(""); setFilter("All"); }}>Reset filters</button></div> : (
-            <section className="destination-grid" aria-label="Destinations">
-              {results.map((destination) => {
-                const open = expanded === destination.id;
-                const credit = PHOTO_CREDITS[destination.id];
-                return <article id={destination.id} className="card destination-card" key={destination.id}>
-                  <div className="destination-photo"><Image src={`/explore/${destination.id}.jpg`} alt={`${destination.name}, ${destination.country}`} fill sizes="(max-width:520px) 100vw,(max-width:900px) 50vw,33vw" /><StatusBadge>{destination.difficulty}</StatusBadge></div>
-                  <div className="destination-summary"><div className="destination-meta"><span>{destination.country}</span><span>{destination.type}</span></div><h2>{destination.name}</h2><div className="destination-meta"><span>{destination.headline}</span><span>{destination.duration}</span></div><button className="button button-small" type="button" aria-expanded={open} aria-controls={`details-${destination.id}`} onClick={() => setExpanded(open ? null : destination.id)}>{open ? "Close details" : "Research this trek"}</button></div>
-                  {open && <div className="destination-details" id={`details-${destination.id}`}><p>{destination.description}</p><dl className="facts"><div><dt>Typical duration</dt><dd>{destination.duration}</dd></div><div><dt>Common season</dt><dd>{destination.bestSeason}</dd></div></dl><iframe className="map-frame" title={`Google map for ${destination.name}`} src={mapsEmbedUrl(destination.query)} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /><div className="cluster" style={{ marginTop:"var(--space-4)" }}><Link className="button button-primary button-small" href={`/plan?dest=${destination.id}`}><Map size={15} /> Use as plan starting point</Link><a className="button button-small" href={mapsDirectionsUrl(destination.query)} target="_blank" rel="noopener noreferrer">Directions <ExternalLink size={14} /></a><a className="button button-small" href={mapsSearchUrl(destination.query)} target="_blank" rel="noopener noreferrer">Google Maps <ExternalLink size={14} /></a></div><p className="photo-credit">Photo: {credit.author} / {credit.licenseUrl ? <a href={credit.licenseUrl} target="_blank" rel="noopener noreferrer">{credit.license}</a> : credit.license} / <a href={credit.source} target="_blank" rel="noopener noreferrer">Wikimedia Commons</a></p></div>}
-                </article>;
-              })}
-            </section>
-          )}
-        </div>
-      </main>
-    </AppShell>
-  );
+  const [query,setQuery]=useState(""); const [continent,setContinent]=useState<Continent|"all">("all"); const [country,setCountry]=useState("all");
+  const [difficulty,setDifficulty]=useState<Difficulty|"all">("all"); const [duration,setDuration]=useState<DurationFilter>("all"); const [routeType,setRouteType]=useState("all"); const [month,setMonth]=useState("all"); const [sort,setSort]=useState<Sort>("recommended");
+  const deferredQuery=useDeferredValue(query.trim().toLowerCase());
+  useEffect(()=>{const timer=setTimeout(()=>{const value=new URLSearchParams(location.search).get("continent");if(value&&CONTINENTS.includes(value as Continent))setContinent(value as Continent)},0);return()=>clearTimeout(timer)},[]);
+  const countries=useMemo(()=>Array.from(new Set(DESTINATIONS.filter(d=>continent==="all"||d.continent===continent).map(d=>d.country))).sort(),[continent]);
+  const routeTypes=useMemo(()=>Array.from(new Set(DESTINATIONS.map(d=>d.routeType))).sort(),[]);
+  const results=useMemo(()=>DESTINATIONS.filter(d=>{
+    const haystack=`${d.name} ${d.country} ${d.region} ${d.continent} ${d.routeType} ${d.overview}`.toLowerCase(); const days=durationDays(d.typicalDuration);
+    return (!deferredQuery||haystack.includes(deferredQuery))&&(continent==="all"||d.continent===continent)&&(country==="all"||d.country===country)&&(difficulty==="all"||d.difficulty===difficulty)&&(routeType==="all"||d.routeType===routeType)&&(month==="all"||d.bestMonths.includes(Number(month)))&&(duration==="all"||(duration==="day"&&days<=1)||(duration==="short"&&days>1&&days<=7)||(duration==="long"&&days>7));
+  }).sort((a,b)=>sort==="easy"?difficultyRank[a.difficulty]-difficultyRank[b.difficulty]:sort==="hard"?difficultyRank[b.difficulty]-difficultyRank[a.difficulty]:sort==="short"?durationDays(a.typicalDuration)-durationDays(b.typicalDuration):sort==="long"?durationDays(b.typicalDuration)-durationDays(a.typicalDuration):sort==="high"?elevation(b.highestPoint)-elevation(a.highestPoint):Number(b.featured)-Number(a.featured)||a.name.localeCompare(b.name)),[deferredQuery,continent,country,difficulty,duration,routeType,month,sort]);
+  const active=[continent,country,difficulty,duration,routeType,month].filter(v=>v!=="all").length+(query?1:0);
+  const reset=()=>{setQuery("");setContinent("all");setCountry("all");setDifficulty("all");setDuration("all");setRouteType("all");setMonth("all");setSort("recommended")};
+  return <AppShell><main id="main-content" className="explore-page"><header className="explore-hero"><div className="container"><p className="eyebrow">International trail catalogue</p><h1>Find the route that fits the preparation.</h1><p className="lede">Compare {DESTINATIONS.length} researched destinations across six continents. Facts are planning context, not current access advice—open each guide and verify its official sources.</p><div className="continent-links" aria-label="Browse by continent">{CONTINENTS.map(value=><button key={value} aria-pressed={continent===value} onClick={()=>{setContinent(value);setCountry("all")}}>{value}</button>)}</div></div></header>
+    <div className="container explore-workspace"><aside className="explore-filters" aria-label="Destination filters"><div className="filter-title"><SlidersHorizontal size={18}/><strong>Refine</strong>{active>0&&<button onClick={reset}>Reset all <X size={14}/></button>}</div><div className="field"><label htmlFor="explore-search">Search</label><div className="search-box"><Search size={17}/><input id="explore-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Destination, country, region…"/></div></div><div className="field"><label htmlFor="continent">Continent</label><select id="continent" value={continent} onChange={e=>{setContinent(e.target.value as Continent|"all");setCountry("all")}}><option value="all">All continents</option>{CONTINENTS.map(v=><option key={v}>{v}</option>)}</select></div><div className="field"><label htmlFor="country">Country</label><select id="country" value={country} onChange={e=>setCountry(e.target.value)}><option value="all">All countries</option>{countries.map(v=><option key={v}>{v}</option>)}</select></div><div className="field"><label htmlFor="difficulty">Difficulty</label><select id="difficulty" value={difficulty} onChange={e=>setDifficulty(e.target.value as Difficulty|"all")}><option value="all">All difficulties</option><option>Moderate</option><option>Hard</option><option>Expert</option></select></div><div className="field"><label htmlFor="duration">Duration</label><select id="duration" value={duration} onChange={e=>setDuration(e.target.value as DurationFilter)}><option value="all">Any duration</option><option value="day">Day routes</option><option value="short">2–7 days</option><option value="long">8+ days</option></select></div><div className="field"><label htmlFor="route-type">Route type</label><select id="route-type" value={routeType} onChange={e=>setRouteType(e.target.value)}><option value="all">All route types</option>{routeTypes.map(v=><option key={v}>{v}</option>)}</select></div><div className="field"><label htmlFor="month">Common travel month</label><select id="month" value={month} onChange={e=>setMonth(e.target.value)}><option value="all">Any month</option>{Array.from({length:12},(_,i)=><option value={i+1} key={i}>{new Intl.DateTimeFormat("en",{month:"long"}).format(new Date(2026,i,1))}</option>)}</select></div></aside>
+      <section className="explore-results" aria-labelledby="results-heading"><div className="results-bar"><div><p className="eyebrow">Catalogue</p><h2 id="results-heading">{results.length} {results.length===1?"destination":"destinations"}</h2></div><div className="field sort-field"><label htmlFor="sort">Sort</label><select id="sort" value={sort} onChange={e=>setSort(e.target.value as Sort)}><option value="recommended">Recommended</option><option value="easy">Difficulty: easier first</option><option value="hard">Difficulty: harder first</option><option value="short">Duration: shorter first</option><option value="long">Duration: longer first</option><option value="high">Elevation: higher first</option></select></div></div><p className="sr-only" aria-live="polite">{results.length} {results.length===1?"destination matches":"destinations match"} the current filters.</p>{results.length===0?<div className="empty-state"><h3>No routes match those filters.</h3><p>Remove one or more filters to widen the catalogue.</p><button className="button" onClick={reset}>Reset filters</button></div>:<div className="destination-grid">{results.map(d=><article className="destination-card" key={d.id}>{d.image?<Link className="destination-card-image" href={`/explore/${d.slug}`}><Image src={d.image} alt={d.imageAlt} fill sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 33vw"/></Link>:<Link className="destination-card-image destination-card-field" href={`/explore/${d.slug}`} aria-label={`View ${d.name} trail guide`}><span>{d.continent}</span><strong>{d.coordinates.lat.toFixed(3)}° / {d.coordinates.lng.toFixed(3)}°</strong></Link>}<div className="destination-card-body"><div className="destination-card-top"><span>{d.country} · {d.continent}</span><StatusBadge>{d.difficulty}</StatusBadge></div><h3><Link href={`/explore/${d.slug}`}>{d.name}</Link></h3><p>{d.overview}</p><dl><div><dt>Route</dt><dd>{d.routeType}</dd></div><div><dt>Time</dt><dd>{d.typicalDuration}</dd></div><div><dt>Key figure</dt><dd>{d.highestPoint||d.distance}</dd></div><div><dt>Season</dt><dd>{d.seasonSummary}</dd></div></dl><div className="destination-card-actions"><Link href={`/explore/${d.slug}`}>View trail guide <ArrowRight size={15}/></Link><Link href={`/plan?from=${d.id}`}>Plan this trip</Link></div></div></article>)}</div>}</section></div></main></AppShell>;
 }
-
-

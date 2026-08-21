@@ -1,178 +1,134 @@
-/* ── Shared trekking-destination data ─────────────────────────────────
-   Single source of truth used by both /explore (browse + live maps) and
-   /plan (prefill "Save as trip"). Every entry is a genuine, publicly known
-   place. `query` is an exact Google Maps search string — no invented
-   places, coordinates, or statistics. ──────────────────────────────── */
+export const CONTINENTS = ["Africa", "Europe", "Asia", "North America", "South America", "Oceania"] as const;
+export type Continent = (typeof CONTINENTS)[number];
+export const DIFFICULTIES = ["Moderate", "Hard", "Expert"] as const;
+export type Difficulty = (typeof DIFFICULTIES)[number];
+export type RouteType = "Day hike" | "Point-to-point" | "Circuit" | "Out-and-back" | "Pilgrimage" | "Summit trek" | "Expedition";
 
-export type Difficulty = "Moderate" | "Hard" | "Expert";
-
+export interface OfficialSource { label: string; url: string; }
+export interface Coordinates { lat: number; lng: number; label: string; precision: "trailhead" | "access-area" | "destination"; }
 export interface Destination {
-  id: string;
-  name: string;
-  country: string;
-  flag: string;
-  type: string;
-  headline: string; // key figure (elevation / length)
-  duration: string;
-  difficulty: Difficulty;
-  bestSeason: string;
-  description: string;
-  query: string; // exact Google Maps search string
+  id: string; slug: string; name: string; country: string; countryCode: string; continent: Continent; region: string;
+  coordinates: Coordinates; mapQuery: string; query: string; category: string; routeType: RouteType; type: string;
+  difficulty: Difficulty; highestPoint: string; headline: string; distance: string; typicalDuration: string; duration: string;
+  elevationGain?: string; bestMonths: number[]; seasonSummary: string; bestSeason: string; overview: string; description: string;
+  routeCharacter: string; terrain: string[]; fitnessLevel: string; technicalLevel: string; altitudeNote: string; weatherNote: string;
+  waterNote: string; permitNote: string; guideNote: string; accessNote: string; accommodationStyle: string; mainRisks: string[];
+  preparationChecklist: string[]; emergencyPlanningNote: string; officialSources: OfficialSource[]; image: string | null; imageAlt: string;
+  featured: boolean; relatedDestinationIds: string[]; lastReviewedAt: string;
 }
 
-export const DESTINATIONS: Destination[] = [
-  {
-    id: "kilimanjaro", name: "Mount Kilimanjaro", country: "Tanzania", flag: "🇹🇿",
-    type: "Summit trek", headline: "5,895 m", duration: "5–9 days", difficulty: "Expert",
-    bestSeason: "Jan–Mar · Jun–Oct",
-    description: "Africa's highest point and the tallest free-standing mountain on Earth. The climb to Uhuru Peak is non-technical, but altitude is the real test — routes such as Machame and Marangu pass through five climate zones from rainforest to arctic summit.",
-    query: "Mount Kilimanjaro, Tanzania",
-  },
-  {
-    id: "mount-kenya", name: "Mount Kenya (Point Lenana)", country: "Kenya", flag: "🇰🇪",
-    type: "Summit trek", headline: "4,985 m", duration: "4–5 days", difficulty: "Hard",
-    bestSeason: "Jan–Feb · Aug–Sep",
-    description: "The trekking summit Point Lenana sits at 4,985 m; the true peaks Batian and Nelion are technical rock climbs. A UNESCO World Heritage site of glaciers, tarns and Afro-alpine moorland.",
-    query: "Mount Kenya National Park, Kenya",
-  },
-  {
-    id: "table-mountain", name: "Table Mountain", country: "South Africa", flag: "🇿🇦",
-    type: "Day hike", headline: "1,085 m", duration: "2–3 hr ascent", difficulty: "Moderate",
-    bestSeason: "Year-round",
-    description: "Cape Town's flat-topped landmark above the city. The Platteklip Gorge route is a steep, direct two-to-three-hour ascent; the cableway offers an easy descent when the wind picks up.",
-    query: "Table Mountain, Cape Town, South Africa",
-  },
-  {
-    id: "simien", name: "Simien Mountains (Ras Dashen)", country: "Ethiopia", flag: "🇪🇹",
-    type: "Multi-day trek", headline: "4,543 m", duration: "4–10 days", difficulty: "Hard",
-    bestSeason: "Oct–Mar",
-    description: "Ethiopia's dramatic escarpment and its highest peak, Ras Dashen. Trekked with a local guide and scout, famous for troops of gelada and thousand-metre cliff edges.",
-    query: "Simien Mountains National Park, Ethiopia",
-  },
-  {
-    id: "toubkal", name: "Mount Toubkal", country: "Morocco", flag: "🇲🇦",
-    type: "Summit trek", headline: "4,167 m", duration: "2 days", difficulty: "Hard",
-    bestSeason: "Apr–Oct",
-    description: "The highest peak in North Africa, reached from the village of Imlil in the High Atlas. A classic two-day trek via the mountain refuge; winter ascents require crampons and an ice axe.",
-    query: "Mount Toubkal, Morocco",
-  },
-  {
-    id: "drakensberg", name: "Drakensberg Amphitheatre", country: "South Africa", flag: "🇿🇦",
-    type: "Day / multi-day", headline: "~3,000 m", duration: "1–2 days", difficulty: "Hard",
-    bestSeason: "Mar–May · Sep–Nov",
-    description: "The vast Amphitheatre escarpment and Tugela Falls, among the highest waterfalls in the world. The chain-ladder route tops out onto the summit plateau of the Northern Drakensberg.",
-    query: "Amphitheatre, Drakensberg, South Africa",
-  },
-  {
-    id: "rwenzori", name: "Rwenzori (Margherita Peak)", country: "Uganda", flag: "🇺🇬",
-    type: "Expedition", headline: "5,109 m", duration: "7–9 days", difficulty: "Expert",
-    bestSeason: "Jun–Aug · Dec–Feb",
-    description: "The glaciated 'Mountains of the Moon' on the Uganda–DRC border. Reaching Margherita Peak is a full expedition through bog, montane rainforest and permanent ice.",
-    query: "Rwenzori Mountains National Park, Uganda",
-  },
-  {
-    id: "meru", name: "Mount Meru", country: "Tanzania", flag: "🇹🇿",
-    type: "Summit trek", headline: "4,562 m", duration: "3–4 days", difficulty: "Hard",
-    bestSeason: "Jun–Feb",
-    description: "Tanzania's second-highest mountain and a superb acclimatisation trek before Kilimanjaro. A narrow summit ridge is walked in the dark to reach the crater rim at dawn.",
-    query: "Mount Meru, Arusha, Tanzania",
-  },
-  {
-    id: "fish-river", name: "Fish River Canyon", country: "Namibia", flag: "🇳🇦",
-    type: "Multi-day trail", headline: "~85 km", duration: "4–5 days", difficulty: "Expert",
-    bestSeason: "May–Sep (trail open)",
-    description: "One of the largest canyons on Earth. The roughly 85 km trail is unsupported and permit-only, open in the cooler months — remote, self-sufficient desert trekking with no exit points.",
-    query: "Fish River Canyon, Namibia",
-  },
-  {
-    id: "longonot", name: "Mount Longonot", country: "Kenya", flag: "🇰🇪",
-    type: "Day hike", headline: "2,776 m", duration: "4–5 hr loop", difficulty: "Moderate",
-    bestSeason: "Jun–Feb",
-    description: "A dormant volcano above Lake Naivasha with a full crater-rim circuit. A popular half-day loop, close to Nairobi, with panoramic views across the Great Rift Valley.",
-    query: "Mount Longonot National Park, Kenya",
-  },
-  {
-    id: "mulanje", name: "Mount Mulanje (Sapitwa)", country: "Malawi", flag: "🇲🇼",
-    type: "Multi-day trek", headline: "3,002 m", duration: "2–4 days", difficulty: "Hard",
-    bestSeason: "May–Oct",
-    description: "The highest massif in Central Africa, rising sharply from the surrounding plains. Sapitwa Peak is reached over granite slabs, with basic mountain huts spaced along the routes.",
-    query: "Mount Mulanje, Malawi",
-  },
-  {
-    id: "hells-gate", name: "Hell's Gate National Park", country: "Kenya", flag: "🇰🇪",
-    type: "Day walk / cycle", headline: "Gorges & geothermal", duration: "3–5 hr", difficulty: "Moderate",
-    bestSeason: "Year-round",
-    description: "One of the few Kenyan parks you can explore on foot or by bicycle, winding among red gorges, geothermal steam vents and grazing wildlife near Lake Naivasha.",
-    query: "Hell's Gate National Park, Kenya",
-  },
-];
+type Seed = Pick<Destination, "id"|"name"|"country"|"countryCode"|"continent"|"region"|"coordinates"|"routeType"|"difficulty"|"highestPoint"|"distance"|"typicalDuration"|"bestMonths"|"seasonSummary"|"overview"|"officialSources"> & Partial<Destination>;
 
-/* ── Google Maps URL builders (real links, no API key) ──────────────── */
-export function mapsSearchUrl(query: string) {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-}
-export function mapsDirectionsUrl(query: string) {
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
-}
-export function mapsEmbedUrl(query: string) {
-  return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=8&output=embed`;
-}
+const photographed = new Set(["kilimanjaro","mount-kenya","table-mountain","simien","toubkal","drakensberg","rwenzori","meru","fish-river","longonot","mulanje","hells-gate"]);
+const reviewed = "2026-08-21";
 
-/* ── Bridge into the planner ─────────────────────────────────────────
-   The /plan wizard groups gear by trip type. These keys must match the
-   GEAR_TEMPLATES keys defined in app/plan/page.tsx. ─────────────────── */
-export type GearTemplateKey = "Day Hike" | "Overnight" | "Multi-day" | "Alpine / Technical";
-
-/** Map a real destination to the closest planner gear template. */
-export function gearTemplateForDestination(d: Destination): GearTemplateKey {
-  const type = d.type.toLowerCase();
-  const dur = d.duration.toLowerCase();
-  // Glaciated / permanent-ice expeditions need technical gear.
-  if (type.includes("expedition")) return "Alpine / Technical";
-  const multiDay =
-    dur.includes("day") ||
-    type.includes("multi-day") ||
-    type.includes("trek") ||
-    type.includes("trail");
-  const singleDay = (dur.includes("hr") || dur.includes("hour")) && !multiDay;
-  if (singleDay) return "Day Hike";
-  return "Multi-day";
-}
-
-export interface TripPrefill {
-  name: string;
-  region: string;
-  type: GearTemplateKey;
-  duration: string;
-  distance: string;
-  notes: string;
-}
-
-/** Find a destination by its id. */
-export function findDestination(id: string | null | undefined): Destination | undefined {
-  if (!id) return undefined;
-  return DESTINATIONS.find((d) => d.id === id);
-}
-
-/** Extract a plain kilometre figure from a headline like "~85 km" ("" if none). */
-function distanceFromHeadline(headline: string): string {
-  const m = headline.match(/([\d,.]+)\s*km/i);
-  return m ? m[1].replace(/,/g, "") : "";
-}
-
-/** Build the planner form prefill for a destination. No fabricated data —
-    every field is copied or derived from the destination's own record. */
-export function destinationPrefill(d: Destination): TripPrefill {
+function destination(seed: Seed): Destination {
+  const statedHeight = Number(seed.highestPoint.replace(/,/g, "").match(/\d{4,5}/)?.[0] ?? 0);
+  const mountain = /mount|peak|kilimanjaro|rwenzori|simien|drakensberg|toubkal|fuji|everest|annapurna|langtang|huayhuash/i.test(seed.name) || statedHeight >= 2500;
+  const type = seed.routeType;
+  const query = seed.mapQuery ?? `${seed.name}, ${seed.country}`;
   return {
-    name: d.name,
-    region: d.country,
-    type: gearTemplateForDestination(d),
-    duration: d.duration,
-    distance: distanceFromHeadline(d.headline),
-    notes:
-      `${d.description}\n\n` +
-      `Best season: ${d.bestSeason}. Confirm current permits, guide requirements ` +
-      `and conditions with the managing park authority before departure. ` +
-      `Location: ${d.query}.`,
+    ...seed,
+    slug: seed.slug ?? seed.id,
+    mapQuery: query, query,
+    category: seed.category ?? (type === "Day hike" ? "Day route" : type === "Pilgrimage" ? "Cultural trail" : mountain ? "Mountain trek" : "Long-distance trail"),
+    type: seed.type ?? type,
+    headline: seed.headline ?? (seed.highestPoint || seed.distance),
+    duration: seed.duration ?? seed.typicalDuration,
+    elevationGain: seed.elevationGain,
+    bestSeason: seed.bestSeason ?? seed.seasonSummary,
+    description: seed.description ?? seed.overview,
+    routeCharacter: seed.routeCharacter ?? "A recognised route with itinerary, access, and conditions that vary by chosen section and operator. Confirm the current route plan before departure.",
+    terrain: seed.terrain ?? (mountain ? ["Mountain paths", "Rocky ground", "Exposed sections"] : ["Waymarked paths", "Natural trail", "Mixed surfaces"]),
+    fitnessLevel: seed.fitnessLevel ?? (seed.difficulty === "Moderate" ? "Regular hill-walking fitness" : seed.difficulty === "Hard" ? "Strong endurance for consecutive trail days" : "Excellent endurance with prior experience in comparable terrain"),
+    technicalLevel: seed.technicalLevel ?? (seed.difficulty === "Expert" ? "Some itineraries require specialist skills, equipment, or a qualified guide." : "Normally a walking route, but local conditions can make sections more serious."),
+    altitudeNote: seed.altitudeNote ?? (mountain ? `The route reaches ${seed.highestPoint}; plan acclimatisation where altitude exposure is significant.` : "Altitude is not the primary difficulty on most standard itineraries."),
+    weatherNote: seed.weatherNote ?? "Conditions can change quickly. Use the responsible authority's current forecast and trail notices immediately before travel.",
+    waterNote: seed.waterNote ?? "Water availability and treatment needs vary by stage and season. Confirm reliable sources for the chosen itinerary.",
+    permitNote: seed.permitNote ?? "Access, booking, and permit rules can change. Check the official sources before committing travel.",
+    guideNote: seed.guideNote ?? "Guide requirements vary by jurisdiction and itinerary. Confirm current rules and use qualified local support where appropriate.",
+    accessNote: seed.accessNote ?? `The map reference identifies ${seed.coordinates.label}; it is not a drawn hiking route. Confirm the actual trailhead and transport plan.` ,
+    accommodationStyle: seed.accommodationStyle ?? (type === "Day hike" ? "Day route; accommodation is arranged off-route." : "A mix of huts, lodges, camps, or nearby settlements depending on itinerary."),
+    mainRisks: seed.mainRisks ?? (mountain ? ["Rapid weather change", "Route-finding error", "Altitude or exposure"] : ["Weather exposure", "Route-finding error", "Water or resupply gaps"]),
+    preparationChecklist: seed.preparationChecklist ?? ["Check current access and closures", "Confirm itinerary and transport", "Review water, weather, and emergency options", "Share a separate trip brief"],
+    emergencyPlanningNote: seed.emergencyPlanningNote ?? "Record local emergency contacts and agree a manual check-in plan outside TrailDesk. TrailDesk does not monitor a trip or send alerts.",
+    image: seed.image ?? (photographed.has(seed.id) ? `/explore/${seed.id}.jpg` : null),
+    imageAlt: seed.imageAlt ?? `${seed.name} landscape in ${seed.country}`,
+    featured: seed.featured ?? photographed.has(seed.id),
+    relatedDestinationIds: seed.relatedDestinationIds ?? [],
+    lastReviewedAt: seed.lastReviewedAt ?? reviewed,
   };
 }
+
+const s = (label: string, url: string): OfficialSource => ({ label, url });
+
+export const DESTINATIONS: Destination[] = [
+  destination({id:"kilimanjaro",name:"Mount Kilimanjaro",country:"Tanzania",countryCode:"TZ",continent:"Africa",region:"Kilimanjaro Region",coordinates:{lat:-3.0674,lng:37.3556,label:"Kilimanjaro National Park",precision:"destination"},routeType:"Summit trek",difficulty:"Expert",highestPoint:"5,895 m",distance:"Varies by route",typicalDuration:"5–9 days",bestMonths:[1,2,3,6,7,8,9,10],seasonSummary:"January–March and June–October are commonly used climbing periods.",overview:"A non-technical high-altitude summit trek through several ecological zones; route choice and acclimatisation schedule materially affect the plan.",officialSources:[s("Kilimanjaro National Park — UNESCO","https://whc.unesco.org/en/list/403")],relatedDestinationIds:["meru","mount-kenya"],altitudeNote:"Uhuru Peak is 5,895 m. Acute mountain sickness is a central planning risk; allow a conservative acclimatisation schedule."}),
+  destination({id:"mount-kenya",name:"Mount Kenya — Point Lenana",country:"Kenya",countryCode:"KE",continent:"Africa",region:"Central Kenya",coordinates:{lat:-0.1521,lng:37.3084,label:"Mount Kenya National Park",precision:"destination"},routeType:"Summit trek",difficulty:"Hard",highestPoint:"4,985 m",distance:"Varies by route",typicalDuration:"4–5 days",bestMonths:[1,2,8,9],seasonSummary:"Drier windows are commonly January–February and August–September.",overview:"Point Lenana is the trekking summit; Batian and Nelion are technical climbs and should not be confused with the standard walking objective.",officialSources:[s("Mount Kenya National Park — UNESCO","https://whc.unesco.org/en/list/800")],relatedDestinationIds:["kilimanjaro","longonot"]}),
+  destination({id:"rwenzori",name:"Rwenzori Mountains — Margherita Peak",country:"Uganda",countryCode:"UG",continent:"Africa",region:"Western Uganda",coordinates:{lat:0.223,lng:29.924,label:"Rwenzori Mountains National Park",precision:"destination"},routeType:"Expedition",difficulty:"Expert",highestPoint:"5,109 m",distance:"Varies by circuit",typicalDuration:"7–9 days",bestMonths:[1,2,6,7,8,12],seasonSummary:"Relatively drier periods are commonly December–February and June–August.",overview:"A wet, committing mountain expedition through forest, bog, rock, and glaciated high terrain; summit itineraries require specialist support.",officialSources:[s("Rwenzori Mountains National Park — UNESCO","https://whc.unesco.org/en/list/684")],relatedDestinationIds:["kilimanjaro","mount-kenya"]}),
+  destination({id:"simien",name:"Simien Mountains",country:"Ethiopia",countryCode:"ET",continent:"Africa",region:"Amhara Region",coordinates:{lat:13.1833,lng:38.0667,label:"Simien Mountains National Park",precision:"destination"},routeType:"Point-to-point",difficulty:"Hard",highestPoint:"4,533 m at Ras Dashen",distance:"Varies by itinerary",typicalDuration:"4–10 days",bestMonths:[10,11,12,1,2,3],seasonSummary:"October–March is the commonly drier trekking period.",overview:"High escarpment walking, remote camps and major elevation changes, with itinerary and mandatory local support requirements to verify before travel.",officialSources:[s("Simien National Park — UNESCO","https://whc.unesco.org/en/list/9")],relatedDestinationIds:["rwenzori","toubkal"]}),
+  destination({id:"toubkal",name:"Mount Toubkal",country:"Morocco",countryCode:"MA",continent:"Africa",region:"High Atlas",coordinates:{lat:31.059,lng:-7.916,label:"Imlil access area",precision:"access-area"},routeType:"Summit trek",difficulty:"Hard",highestPoint:"4,167 m",distance:"About 30 km return via standard route",typicalDuration:"2–3 days",bestMonths:[4,5,6,7,8,9,10],seasonSummary:"Late spring through autumn is the common non-winter period; winter requires snow skills and equipment.",overview:"North Africa's highest summit, most often approached from Imlil via the Toubkal refuge; seasonal snow changes the undertaking substantially.",officialSources:[s("Toubkal National Park — Morocco Water and Forests Agency","https://www.eauxetforets.gov.ma/ParcsNationaux/Pages/Parc-National-de-Toubkal.aspx")],relatedDestinationIds:["simien","kilimanjaro"]}),
+  destination({id:"drakensberg",name:"Drakensberg Amphitheatre",country:"South Africa",countryCode:"ZA",continent:"Africa",region:"KwaZulu-Natal",coordinates:{lat:-28.748,lng:28.895,label:"Sentinel Car Park access area",precision:"access-area"},routeType:"Day hike",difficulty:"Hard",highestPoint:"About 3,000 m",distance:"Route-dependent",typicalDuration:"1 long day",bestMonths:[3,4,5,9,10,11],seasonSummary:"Autumn and spring often provide milder conditions; thunderstorms and winter ice remain possible.",overview:"A high escarpment objective commonly reached via the Sentinel route and chain ladders; exposure and fast weather changes demand conservative decisions.",officialSources:[s("Maloti-Drakensberg Park — UNESCO","https://whc.unesco.org/en/list/985")],relatedDestinationIds:["table-mountain","mulanje"]}),
+  destination({id:"fish-river",name:"Fish River Canyon Trail",country:"Namibia",countryCode:"NA",continent:"Africa",region:"ǁKaras Region",coordinates:{lat:-27.59,lng:17.61,label:"Hobas access area",precision:"access-area"},routeType:"Point-to-point",difficulty:"Expert",highestPoint:"Canyon route",distance:"About 85 km",typicalDuration:"4–5 days",bestMonths:[5,6,7,8,9],seasonSummary:"The managed hiking season is normally limited to cooler months; confirm annual opening and medical requirements.",overview:"A remote, unsupported canyon traverse with limited exit options, seasonal access controls, and serious heat and water-planning implications.",officialSources:[s("Fish River Canyon — Namibia Wildlife Resorts","https://www.nwr.com.na/resorts/fish-river-canyon")],relatedDestinationIds:["drakensberg","mulanje"]}),
+  destination({id:"mulanje",name:"Mount Mulanje — Sapitwa",country:"Malawi",countryCode:"MW",continent:"Africa",region:"Southern Region",coordinates:{lat:-15.948,lng:35.59,label:"Mulanje Mountain access area",precision:"access-area"},routeType:"Summit trek",difficulty:"Hard",highestPoint:"3,002 m",distance:"Varies by route",typicalDuration:"2–4 days",bestMonths:[5,6,7,8,9,10],seasonSummary:"May–October is commonly the drier hiking period.",overview:"A granite massif with a network of paths and simple huts; Sapitwa is a serious summit objective rather than a routine extension.",officialSources:[s("Mount Mulanje Biosphere Reserve — UNESCO","https://www.unesco.org/en/mab/mount-mulanje")],relatedDestinationIds:["drakensberg","rwenzori"]}),
+  destination({id:"table-mountain",name:"Table Mountain",country:"South Africa",countryCode:"ZA",continent:"Africa",region:"Cape Town",coordinates:{lat:-33.9628,lng:18.4098,label:"Table Mountain National Park",precision:"destination"},routeType:"Day hike",difficulty:"Moderate",highestPoint:"1,085 m",distance:"Varies by route",typicalDuration:"2–6 hours",bestMonths:[1,2,3,4,9,10,11,12],seasonSummary:"Walkable year-round when conditions permit; wind, heat, cloud and cableway closures affect plans.",overview:"A network of steep mountain paths directly above Cape Town; route difficulty varies widely and cloud can remove visibility quickly.",officialSources:[s("Table Mountain National Park — SANParks","https://www.sanparks.org/parks/table-mountain")],relatedDestinationIds:["drakensberg","longonot"]}),
+  destination({id:"longonot",name:"Mount Longonot",country:"Kenya",countryCode:"KE",continent:"Africa",region:"Great Rift Valley",coordinates:{lat:-0.914,lng:36.457,label:"Mount Longonot National Park gate",precision:"trailhead"},routeType:"Circuit",difficulty:"Moderate",highestPoint:"2,776 m",distance:"About 7–9 km depending on crater-rim option",typicalDuration:"4–6 hours",bestMonths:[1,2,6,7,8,9,10,12],seasonSummary:"Often attempted in drier months; exposed heat and wet volcanic soil can change conditions.",overview:"A steep ascent to a volcanic crater rim with an optional full circuit, close to Nairobi but exposed to sun, wind and rapid weather changes.",officialSources:[s("Mount Longonot National Park — Kenya Wildlife Service","https://www.kws.go.ke/mount-longonot-national-park")],relatedDestinationIds:["hells-gate","mount-kenya"]}),
+  destination({id:"hells-gate",name:"Hell’s Gate National Park",country:"Kenya",countryCode:"KE",continent:"Africa",region:"Naivasha",coordinates:{lat:-0.922,lng:36.314,label:"Elsa Gate",precision:"trailhead"},routeType:"Day hike",difficulty:"Moderate",highestPoint:"Park floor and gorge routes",distance:"Route-dependent",typicalDuration:"3–6 hours",bestMonths:[1,2,6,7,8,9,10],seasonSummary:"Open conditions vary; gorge access may close due to flash-flood risk or management decisions.",overview:"Walking and cycling routes among cliffs and geothermal features; users must follow current park restrictions, especially around gorges.",officialSources:[s("Hell’s Gate National Park — Kenya Wildlife Service","https://www.kws.go.ke/hells-gate-national-park")],relatedDestinationIds:["longonot","mount-kenya"]}),
+  destination({id:"meru",name:"Mount Meru",country:"Tanzania",countryCode:"TZ",continent:"Africa",region:"Arusha Region",coordinates:{lat:-3.246,lng:36.75,label:"Momella Gate, Arusha National Park",precision:"trailhead"},routeType:"Summit trek",difficulty:"Hard",highestPoint:"4,566 m",distance:"Varies by park itinerary",typicalDuration:"3–4 days",bestMonths:[1,2,6,7,8,9,10,12],seasonSummary:"Commonly climbed in Tanzania's drier periods; verify park conditions.",overview:"A steep acclimatisation summit inside Arusha National Park, normally undertaken with required park support and a high exposed summit ridge.",officialSources:[s("Arusha National Park — Tanzania National Parks","https://www.tanzaniaparks.go.tz/national_parks/arusha-national-park")],relatedDestinationIds:["kilimanjaro","mount-kenya"]}),
+
+  destination({id:"tour-du-mont-blanc",name:"Tour du Mont Blanc",country:"France / Italy / Switzerland",countryCode:"FR",continent:"Europe",region:"Mont Blanc massif",coordinates:{lat:45.9237,lng:6.8694,label:"Chamonix access area",precision:"access-area"},routeType:"Circuit",difficulty:"Hard",highestPoint:"About 2,665 m on common variants",distance:"About 170 km; variants differ",typicalDuration:"7–11 days",bestMonths:[6,7,8,9],seasonSummary:"The normal trekking season is summer into early autumn, subject to snow and hut operations.",overview:"A transboundary circuit around the Mont Blanc massif with many variants, frequent accommodation, and complex booking and transport choices.",officialSources:[s("Tour du Mont Blanc — Autour du Mont-Blanc","https://www.autourdumontblanc.com/en/")],relatedDestinationIds:["alta-via-1","west-highland-way"]}),
+  destination({id:"camino-frances",name:"Camino Francés",country:"Spain",countryCode:"ES",continent:"Europe",region:"Northern Spain",coordinates:{lat:42.8806,lng:-8.5446,label:"Santiago de Compostela",precision:"destination"},routeType:"Pilgrimage",difficulty:"Moderate",highestPoint:"About 1,515 m at Cruz de Ferro area",distance:"About 780 km from Saint-Jean-Pied-de-Port",typicalDuration:"4–6 weeks for the full route",bestMonths:[4,5,6,9,10],seasonSummary:"Spring and early autumn are common; heat, winter conditions, and service availability vary by section.",overview:"A long cultural and pilgrimage route with many possible starting points, extensive services, and a credential-based pilgrim tradition.",officialSources:[s("Way of Saint James — Galicia Tourism","https://www.caminodesantiago.gal/en")],relatedDestinationIds:["west-highland-way","tour-du-mont-blanc"]}),
+  destination({id:"west-highland-way",name:"West Highland Way",country:"United Kingdom",countryCode:"GB",continent:"Europe",region:"Scotland",coordinates:{lat:55.941,lng:-4.319,label:"Milngavie start area",precision:"trailhead"},routeType:"Point-to-point",difficulty:"Moderate",highestPoint:"548 m at Devil’s Staircase",distance:"154 km",typicalDuration:"6–8 days",bestMonths:[4,5,6,7,8,9,10],seasonSummary:"Spring through autumn is common; rain, wind, midges and limited winter daylight affect planning.",overview:"A waymarked Scottish long-distance path from Milngavie to Fort William through lochside, moorland and Highland terrain.",officialSources:[s("West Highland Way — official route site","https://www.westhighlandway.org/")],relatedDestinationIds:["tour-du-mont-blanc","laugavegur"]}),
+  destination({id:"laugavegur",name:"Laugavegur Trail",country:"Iceland",countryCode:"IS",continent:"Europe",region:"Southern Highlands",coordinates:{lat:63.992,lng:-19.061,label:"Landmannalaugar access area",precision:"trailhead"},routeType:"Point-to-point",difficulty:"Hard",highestPoint:"About 1,050 m",distance:"About 55 km",typicalDuration:"3–5 days",bestMonths:[6,7,8,9],seasonSummary:"A short summer season depends on road, hut, river and snow conditions.",overview:"A remote highland crossing through geothermal terrain, black sand, exposed plateaus and unbridged rivers, with tightly seasonal access.",officialSources:[s("Laugavegur — Iceland Touring Association","https://www.fi.is/en/hiking-trails/trails/laugavegur")],relatedDestinationIds:["west-highland-way","tour-du-mont-blanc"]}),
+  destination({id:"alta-via-1",name:"Dolomites Alta Via 1",country:"Italy",countryCode:"IT",continent:"Europe",region:"Dolomites",coordinates:{lat:46.694,lng:12.086,label:"Lago di Braies start area",precision:"trailhead"},routeType:"Point-to-point",difficulty:"Hard",highestPoint:"About 2,750 m",distance:"About 120 km",typicalDuration:"8–12 days",bestMonths:[6,7,8,9],seasonSummary:"Summer to early autumn, governed by snow and rifugio opening dates.",overview:"A hut-to-hut traverse through the eastern Dolomites on mountain paths; optional variants can introduce technical terrain.",officialSources:[s("Dolomites — UNESCO","https://whc.unesco.org/en/list/1237")],relatedDestinationIds:["tour-du-mont-blanc","gr20"]}),
+  destination({id:"gr20",name:"GR20 Corsica",country:"France",countryCode:"FR",continent:"Europe",region:"Corsica",coordinates:{lat:42.508,lng:8.856,label:"Calenzana northern start",precision:"trailhead"},routeType:"Point-to-point",difficulty:"Expert",highestPoint:"About 2,225 m",distance:"About 180 km",typicalDuration:"12–16 days",bestMonths:[6,7,8,9],seasonSummary:"Normally a summer undertaking; snow, heat, storms and refuge operations affect timing.",overview:"A demanding mountain traverse of Corsica with sustained rocky terrain, scrambling, limited resupply and variants that alter difficulty.",officialSources:[s("GR20 — Corsica tourism","https://www.visit-corsica.com/en/Explore-Corsica/Activities-and-leisure/Hiking/The-GR20")],relatedDestinationIds:["alta-via-1","tour-du-mont-blanc"]}),
+
+  destination({id:"everest-base-camp",name:"Everest Base Camp",country:"Nepal",countryCode:"NP",continent:"Asia",region:"Khumbu",coordinates:{lat:27.805,lng:86.711,label:"Lukla access area",precision:"access-area"},routeType:"Out-and-back",difficulty:"Expert",highestPoint:"5,364 m at base camp; higher side trips",distance:"Varies by acclimatisation itinerary",typicalDuration:"12–16 days",bestMonths:[3,4,5,10,11],seasonSummary:"Pre-monsoon spring and post-monsoon autumn are the common trekking windows.",overview:"A high-altitude lodge trek through the Khumbu; acclimatisation days, flight reliability and changing park rules are core planning constraints.",officialSources:[s("Everest Base Camp — Nepal Tourism Board","https://ntb.gov.np/en/everest-base-camp"),s("Sagarmatha National Park","https://www.snp.gov.np/")],relatedDestinationIds:["annapurna-circuit","langtang-valley"]}),
+  destination({id:"annapurna-circuit",name:"Annapurna Circuit",country:"Nepal",countryCode:"NP",continent:"Asia",region:"Annapurna Conservation Area",coordinates:{lat:28.549,lng:84.236,label:"Besisahar access area",precision:"access-area"},routeType:"Circuit",difficulty:"Expert",highestPoint:"5,416 m at Thorong La",distance:"Route length varies with road and side-trip choices",typicalDuration:"12–20 days",bestMonths:[3,4,5,10,11],seasonSummary:"Spring and post-monsoon autumn are common; pass snow and monsoon conditions require current checks.",overview:"A high pass journey across contrasting Himalayan valleys, now highly variable because road access changes possible starts and finishes.",officialSources:[s("Annapurna Region — Nepal Tourism Board","https://trade.ntb.gov.np/tourist-destination/annapurna-region/")],relatedDestinationIds:["annapurna-base-camp","everest-base-camp"]}),
+  destination({id:"annapurna-base-camp",name:"Annapurna Base Camp",country:"Nepal",countryCode:"NP",continent:"Asia",region:"Annapurna Sanctuary",coordinates:{lat:28.53,lng:83.878,label:"Nayapul access area",precision:"access-area"},routeType:"Out-and-back",difficulty:"Hard",highestPoint:"4,130 m",distance:"Varies by access and side trips",typicalDuration:"7–12 days",bestMonths:[3,4,5,10,11],seasonSummary:"Spring and post-monsoon autumn are common; monsoon rain and winter snow affect access.",overview:"A lodge trek into the Annapurna Sanctuary with repeated stone steps, forest, avalanche terrain and increasing altitude.",officialSources:[s("Annapurna Region — Nepal Tourism Board","https://trade.ntb.gov.np/tourist-destination/annapurna-region/")],relatedDestinationIds:["annapurna-circuit","langtang-valley"]}),
+  destination({id:"langtang-valley",name:"Langtang Valley",country:"Nepal",countryCode:"NP",continent:"Asia",region:"Langtang National Park",coordinates:{lat:28.166,lng:85.385,label:"Syabrubesi access area",precision:"trailhead"},routeType:"Out-and-back",difficulty:"Hard",highestPoint:"About 3,870 m at Kyanjin Gompa; higher side trips",distance:"Varies by side trips",typicalDuration:"7–10 days",bestMonths:[3,4,5,10,11],seasonSummary:"Spring and autumn are the common trekking periods.",overview:"A lodge-based Himalayan valley trek with optional high viewpoints; road access, altitude and post-earthquake trail conditions need current confirmation.",officialSources:[s("Langtang National Park — Nepal Tourism Board","https://ntb.gov.np/en/langtang")],relatedDestinationIds:["everest-base-camp","annapurna-base-camp"]}),
+  destination({id:"mount-fuji",name:"Mount Fuji — Yoshida Trail",country:"Japan",countryCode:"JP",continent:"Asia",region:"Yamanashi / Shizuoka",coordinates:{lat:35.394,lng:138.733,label:"Fuji Subaru Line 5th Station",precision:"trailhead"},routeType:"Summit trek",difficulty:"Hard",highestPoint:"3,776 m",distance:"Route-dependent",typicalDuration:"1–2 days",bestMonths:[7,8,9],seasonSummary:"Use the officially announced climbing season and check current reservation and access rules.",overview:"A highly managed seasonal volcano ascent; crowd controls, hut bookings, weather and acute altitude exposure shape the standard plan.",officialSources:[s("Official Website for Mt. Fuji Climbing","https://www.fujisan-climb.jp/en/")],relatedDestinationIds:["kumano-kodo","everest-base-camp"]}),
+  destination({id:"kumano-kodo",name:"Kumano Kodo — Nakahechi",country:"Japan",countryCode:"JP",continent:"Asia",region:"Kii Peninsula",coordinates:{lat:33.733,lng:135.376,label:"Takijiri-oji access area",precision:"trailhead"},routeType:"Pilgrimage",difficulty:"Moderate",highestPoint:"Mountain passes vary by stage",distance:"Itinerary-dependent",typicalDuration:"3–7 days",bestMonths:[3,4,5,10,11],seasonSummary:"Spring and autumn are common; humidity, typhoons and winter conditions require checking.",overview:"A network of historic pilgrimage paths linking sacred sites across the Kii Peninsula, normally planned as selected stages rather than one fixed route.",officialSources:[s("Kumano Kodo — Tanabe City Kumano Tourism Bureau","https://www.tb-kumano.jp/en/kumano-kodo/")],relatedDestinationIds:["mount-fuji","camino-frances"]}),
+
+  destination({id:"appalachian-trail",name:"Appalachian Trail",country:"United States",countryCode:"US",continent:"North America",region:"Eastern United States",coordinates:{lat:34.627,lng:-84.194,label:"Springer Mountain southern terminus",precision:"trailhead"},routeType:"Point-to-point",difficulty:"Expert",highestPoint:"2,025 m at Clingmans Dome",distance:"About 3,500 km; annual official distance varies",typicalDuration:"5–7 months for a thru-hike",bestMonths:[3,4,5,6,7,8,9,10],seasonSummary:"Timing depends on direction, latitude and seasonal closures; section hikes vary widely.",overview:"A long-distance footpath across fourteen states; thru-hike logistics, permits, resupply and seasonal risk differ substantially by section.",officialSources:[s("Appalachian Trail Conservancy","https://appalachiantrail.org/explore/hike-the-a-t/")],relatedDestinationIds:["john-muir-trail","west-highland-way"]}),
+  destination({id:"john-muir-trail",name:"John Muir Trail",country:"United States",countryCode:"US",continent:"North America",region:"California Sierra Nevada",coordinates:{lat:37.746,lng:-119.533,label:"Yosemite Valley northern access",precision:"access-area"},routeType:"Point-to-point",difficulty:"Expert",highestPoint:"4,421 m at Mount Whitney",distance:"About 340 km",typicalDuration:"2–4 weeks",bestMonths:[7,8,9],seasonSummary:"Usually attempted in the snow-free summer window; permits, wildfire, river crossings and snowpack vary annually.",overview:"A high Sierra traverse through designated wilderness with competitive permits, long resupply gaps and sustained altitude.",officialSources:[s("John Muir Trail — US National Park Service","https://www.nps.gov/yose/planyourvisit/jmt.htm")],relatedDestinationIds:["appalachian-trail","grand-canyon-rim-to-rim"]}),
+  destination({id:"zion-narrows",name:"The Narrows",country:"United States",countryCode:"US",continent:"North America",region:"Zion National Park, Utah",coordinates:{lat:37.285,lng:-112.947,label:"Temple of Sinawava access",precision:"trailhead"},routeType:"Day hike",difficulty:"Hard",highestPoint:"River canyon",distance:"Up to about 15 km return for common bottom-up day use",typicalDuration:"Up to 1 day",bestMonths:[5,6,9,10],seasonSummary:"Access depends on river flow, flash-flood forecast, water temperature and park closures.",overview:"A river hike through a confined slot canyon, where water level and flash-flood risk determine whether travel is responsible or permitted.",officialSources:[s("The Narrows — US National Park Service","https://www.nps.gov/zion/planyourvisit/zion-narrows.htm")],relatedDestinationIds:["grand-canyon-rim-to-rim","john-muir-trail"]}),
+  destination({id:"grand-canyon-rim-to-rim",name:"Grand Canyon Rim-to-Rim",country:"United States",countryCode:"US",continent:"North America",region:"Arizona",coordinates:{lat:36.057,lng:-112.143,label:"South Kaibab Trailhead",precision:"trailhead"},routeType:"Point-to-point",difficulty:"Expert",highestPoint:"Over 2,500 m at North Rim",distance:"About 34–39 km depending on corridor route",typicalDuration:"1–3 days",bestMonths:[5,9,10],seasonSummary:"North Rim access is seasonal; inner-canyon heat makes timing critical.",overview:"A major descent and climb across the canyon with extreme temperature change, limited water points and transport logistics between rims.",officialSources:[s("Backcountry hiking — Grand Canyon National Park","https://www.nps.gov/grca/planyourvisit/backcountry.htm")],relatedDestinationIds:["zion-narrows","john-muir-trail"]}),
+
+  destination({id:"inca-trail",name:"Inca Trail to Machu Picchu",country:"Peru",countryCode:"PE",continent:"South America",region:"Cusco Region",coordinates:{lat:-13.214,lng:-72.378,label:"Km 82 access area",precision:"access-area"},routeType:"Point-to-point",difficulty:"Hard",highestPoint:"4,215 m at Dead Woman’s Pass",distance:"About 43 km on the classic route",typicalDuration:"4 days",bestMonths:[4,5,6,7,8,9,10],seasonSummary:"The drier season is commonly April–October; annual closures and permit rules must be confirmed.",overview:"A permit-controlled cultural and mountain route to Machu Picchu, normally operated under strict entry, porter and group arrangements.",officialSources:[s("Machu Picchu — Peru Ministry of Culture","https://www.machupicchu.gob.pe/")],relatedDestinationIds:["huayhuash-circuit","torres-del-paine-w"]}),
+  destination({id:"torres-del-paine-w",name:"Torres del Paine W Trek",country:"Chile",countryCode:"CL",continent:"South America",region:"Patagonia",coordinates:{lat:-50.942,lng:-73.407,label:"Torres del Paine National Park",precision:"destination"},routeType:"Point-to-point",difficulty:"Hard",highestPoint:"Mountain passes vary by itinerary",distance:"About 70–80 km depending on variant",typicalDuration:"4–6 days",bestMonths:[1,2,3,10,11,12],seasonSummary:"Austral spring through autumn is common; strong wind and rapid weather changes occur throughout the season.",overview:"A booked hut-or-camp route linking the park's main valleys and viewpoints; reservations and transport must align before travel.",officialSources:[s("Torres del Paine — CONAF","https://www.conaf.cl/parque_nacionales/parque-nacional-torres-del-paine/")],relatedDestinationIds:["fitz-roy","inca-trail"]}),
+  destination({id:"huayhuash-circuit",name:"Huayhuash Circuit",country:"Peru",countryCode:"PE",continent:"South America",region:"Cordillera Huayhuash",coordinates:{lat:-10.269,lng:-76.897,label:"Chiquián access area",precision:"access-area"},routeType:"Circuit",difficulty:"Expert",highestPoint:"Passes above 4,700 m",distance:"Roughly 110–130 km by variant",typicalDuration:"8–12 days",bestMonths:[5,6,7,8,9],seasonSummary:"The drier Andean season is commonly May–September.",overview:"A remote high-altitude circuit crossing repeated passes, with limited services and community access arrangements that must be verified locally.",officialSources:[s("Cordillera Huayhuash Reserved Zone — SERNANP","https://www.gob.pe/institucion/sernanp/informes-publicaciones")],relatedDestinationIds:["inca-trail","torres-del-paine-w"]}),
+  destination({id:"fitz-roy",name:"Laguna de los Tres — Fitz Roy",country:"Argentina",countryCode:"AR",continent:"South America",region:"Los Glaciares National Park",coordinates:{lat:-49.331,lng:-72.886,label:"El Chaltén trail access",precision:"trailhead"},routeType:"Day hike",difficulty:"Hard",highestPoint:"About 1,170 m at the viewpoint",distance:"About 20–25 km return by start",typicalDuration:"8–10 hours",bestMonths:[1,2,3,10,11,12],seasonSummary:"Austral spring through autumn is common; wind and weather change quickly.",overview:"A long day route from El Chaltén to a steep final moraine climb and close Fitz Roy viewpoint, with several access variants.",officialSources:[s("Los Glaciares National Park — Argentina National Parks","https://www.argentina.gob.ar/parquesnacionales/losglaciares")],relatedDestinationIds:["torres-del-paine-w","inca-trail"]}),
+
+  destination({id:"milford-track",name:"Milford Track",country:"New Zealand",countryCode:"NZ",continent:"Oceania",region:"Fiordland",coordinates:{lat:-45.442,lng:167.697,label:"Glade Wharf start",precision:"trailhead"},routeType:"Point-to-point",difficulty:"Hard",highestPoint:"1,154 m at Mackinnon Pass",distance:"53.5 km",typicalDuration:"4 days",bestMonths:[1,2,3,11,12],seasonSummary:"The Great Walk season has managed bookings and services; outside-season travel is more serious.",overview:"A tightly managed Great Walk through rainforest and alpine pass terrain, requiring transport and hut bookings in the main season.",officialSources:[s("Milford Track — New Zealand Department of Conservation","https://www.doc.govt.nz/milfordtrack")],relatedDestinationIds:["tongariro-crossing","overland-track"]}),
+  destination({id:"tongariro-crossing",name:"Tongariro Alpine Crossing",country:"New Zealand",countryCode:"NZ",continent:"Oceania",region:"Central North Island",coordinates:{lat:-39.145,lng:175.581,label:"Mangatepopo trailhead",precision:"trailhead"},routeType:"Point-to-point",difficulty:"Hard",highestPoint:"1,886 m at Red Crater",distance:"About 20 km",typicalDuration:"7–8 hours",bestMonths:[1,2,3,11,12],seasonSummary:"Summer is the standard walking season; winter conditions require alpine skills and equipment.",overview:"An exposed volcanic crossing with no easy retreat in poor weather, plus shuttle and cultural-respect requirements.",officialSources:[s("Tongariro Alpine Crossing — New Zealand DOC","https://www.doc.govt.nz/tongariroalpinecrossing")],relatedDestinationIds:["milford-track","overland-track"]}),
+  destination({id:"overland-track",name:"Overland Track",country:"Australia",countryCode:"AU",continent:"Oceania",region:"Tasmania",coordinates:{lat:-41.684,lng:145.952,label:"Ronny Creek start",precision:"trailhead"},routeType:"Point-to-point",difficulty:"Hard",highestPoint:"Optional peaks; main track varies",distance:"65 km main track",typicalDuration:"6 days",bestMonths:[1,2,3,11,12],seasonSummary:"The managed walking season uses bookings and direction controls; alpine weather is possible year-round.",overview:"A multi-day Tasmanian wilderness crossing with huts and camps, frequent wet ground, and optional side trips that add significant effort.",officialSources:[s("Overland Track — Tasmania Parks and Wildlife Service","https://parks.tas.gov.au/explore-our-parks/cradle-mountain/overland-track")],relatedDestinationIds:["milford-track","larapinta-trail"]}),
+  destination({id:"larapinta-trail",name:"Larapinta Trail",country:"Australia",countryCode:"AU",continent:"Oceania",region:"Northern Territory",coordinates:{lat:-23.7,lng:133.881,label:"Alice Springs Telegraph Station",precision:"trailhead"},routeType:"Point-to-point",difficulty:"Expert",highestPoint:"1,380 m at Mount Sonder",distance:"About 230 km",typicalDuration:"12–20 days",bestMonths:[5,6,7,8,9],seasonSummary:"Cooler months are the standard season; extreme heat makes summer travel hazardous.",overview:"A remote arid-range trail west of Alice Springs with long water carries, rugged rock and substantial transport logistics.",officialSources:[s("Larapinta Trail — Northern Territory Parks","https://nt.gov.au/parks/find-a-park/tjoritja-west-macdonnell-national-park/larapinta-trail")],relatedDestinationIds:["overland-track","fish-river"]}),
+];
+
+export function validateDestinations(items: Destination[] = DESTINATIONS): string[] {
+  const errors: string[] = []; const ids = new Set<string>(); const slugs = new Set<string>();
+  for (const item of items) {
+    if (ids.has(item.id)) errors.push(`Duplicate destination id: ${item.id}`); ids.add(item.id);
+    if (slugs.has(item.slug)) errors.push(`Duplicate destination slug: ${item.slug}`); slugs.add(item.slug);
+    if (!CONTINENTS.includes(item.continent)) errors.push(`Invalid continent: ${item.id}`);
+    if (!DIFFICULTIES.includes(item.difficulty)) errors.push(`Invalid difficulty: ${item.id}`);
+    if (!Number.isFinite(item.coordinates.lat) || !Number.isFinite(item.coordinates.lng)) errors.push(`Missing coordinates: ${item.id}`);
+    if (!item.officialSources.length) errors.push(`Missing official sources: ${item.id}`);
+    if (item.image && !item.image.startsWith("/explore/")) errors.push(`Invalid local image: ${item.id}`);
+  }
+  for (const item of items) for (const related of item.relatedDestinationIds) if (!ids.has(related)) errors.push(`Unknown related destination ${related} on ${item.id}`);
+  return errors;
+}
+
+export function findDestination(value: string | null | undefined) { return value ? DESTINATIONS.find(d => d.id === value || d.slug === value) : undefined; }
+export function mapsSearchUrl(destination: Pick<Destination,"coordinates"|"mapQuery"> | string) { const query = typeof destination === "string" ? destination : `${destination.coordinates.lat},${destination.coordinates.lng}`; return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`; }
+export function mapsDirectionsUrl(destination: Pick<Destination,"coordinates"> | string) { const query = typeof destination === "string" ? destination : `${destination.coordinates.lat},${destination.coordinates.lng}`; return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`; }
+export function mapsEmbedUrl(destination: Pick<Destination,"coordinates"> | string) { const query = typeof destination === "string" ? destination : `${destination.coordinates.lat},${destination.coordinates.lng}`; return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=9&output=embed`; }
+
+export type GearTemplateKey = "Day Hike" | "Overnight" | "Multi-day" | "Alpine / Technical";
+export function gearTemplateForDestination(d: Destination): GearTemplateKey { if (d.routeType === "Day hike") return "Day Hike"; if (d.difficulty === "Expert" || /altitude|summit|expedition/i.test(`${d.category} ${d.routeType}`)) return "Alpine / Technical"; return "Multi-day"; }
+export interface TripPrefill { name:string; region:string; type:GearTemplateKey; duration:string; distance:string; notes:string; destinationId:string; routeVariant:string; accessLocation:string; coordinates:Coordinates; officialSources:OfficialSource[]; }
+export function destinationPrefill(d: Destination): TripPrefill { return {name:d.name,region:`${d.region}, ${d.country}`,type:gearTemplateForDestination(d),duration:d.typicalDuration,distance:/^[\d.]+\s*km$/i.test(d.distance)?d.distance.replace(/\s*km/i,""):"",destinationId:d.id,routeVariant:"",accessLocation:d.coordinates.label,coordinates:d.coordinates,officialSources:d.officialSources,notes:`Season: ${d.seasonSummary}\nPermit: ${d.permitNote}\nGuide: ${d.guideNote}\nWater: ${d.waterNote}\n\nConfirm all details against the linked official sources before departure.`}; }
+
+export const CATALOGUE_ERRORS = validateDestinations();

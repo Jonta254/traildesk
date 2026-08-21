@@ -1,40 +1,13 @@
-export type TripStatus = "planned" | "completed" | "draft";
-
-export interface SavedTrip {
-  id: string;
-  name: string;
-  region: string;
-  date: string;
-  duration: string;
-  distance: string;
-  type: string;
-  notes: string;
-  contactName: string;
-  contactPhone: string;
-  checkInPlan: string;
-  gear: string[];
-  coordinates: { lat: number; lng: number } | null;
-  status: TripStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export const TRIPS_STORAGE_KEY = "traildesk_trips";
-export const STORAGE_VERSION = 1;
-
-export function readTrips(): SavedTrip[] {
-  try {
-    const value = window.localStorage.getItem(TRIPS_STORAGE_KEY);
-    if (!value) return [];
-    const parsed: unknown = JSON.parse(value);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((trip): trip is SavedTrip => Boolean(trip && typeof trip === "object" && "id" in trip && "name" in trip));
-  } catch {
-    return [];
-  }
-}
-
-export function writeTrips(trips: SavedTrip[]) {
-  window.localStorage.setItem(TRIPS_STORAGE_KEY, JSON.stringify(trips));
-  window.localStorage.setItem(`${TRIPS_STORAGE_KEY}_version`, String(STORAGE_VERSION));
-}
+export type TripStatus="draft"|"planned"|"active"|"completed"|"cancelled";
+export interface SavedTrip{schemaVersion:2;id:string;destinationId?:string;name:string;region:string;date:string;expectedReturn?:string;duration:string;distance:string;type:string;routeVariant?:string;accessLocation?:string;transportNotes?:string;accommodationStyle?:string;guideDetails?:string;permitStatus?:string;groupSize?:string;medicalNotes?:string;notes:string;contactName:string;contactPhone:string;checkInPlan:string;gear:string[];coordinates:{lat:number;lng:number}|null;officialSources?:{label:string;url:string}[];status:TripStatus;createdAt:string;updatedAt:string;}
+export const TRIPS_STORAGE_KEY="traildesk_trips";export const STORAGE_VERSION=2;
+export interface TripsReadResult{trips:SavedTrip[];recovered:number;error:string|null;}
+const statuses:TripStatus[]=["draft","planned","active","completed","cancelled"];
+function migrate(value:unknown):SavedTrip|null{if(!value||typeof value!=="object")return null;const v=value as Record<string,unknown>;if(typeof v.id!=="string"||typeof v.name!=="string")return null;const now=new Date().toISOString();return{schemaVersion:2,id:v.id,destinationId:typeof v.destinationId==="string"?v.destinationId:undefined,name:v.name,region:typeof v.region==="string"?v.region:"",date:typeof v.date==="string"?v.date:"",expectedReturn:typeof v.expectedReturn==="string"?v.expectedReturn:undefined,duration:typeof v.duration==="string"?v.duration:"",distance:typeof v.distance==="string"?v.distance:"",type:typeof v.type==="string"?v.type:"Day Hike",routeVariant:typeof v.routeVariant==="string"?v.routeVariant:undefined,accessLocation:typeof v.accessLocation==="string"?v.accessLocation:undefined,transportNotes:typeof v.transportNotes==="string"?v.transportNotes:undefined,accommodationStyle:typeof v.accommodationStyle==="string"?v.accommodationStyle:undefined,guideDetails:typeof v.guideDetails==="string"?v.guideDetails:undefined,permitStatus:typeof v.permitStatus==="string"?v.permitStatus:undefined,groupSize:typeof v.groupSize==="string"?v.groupSize:undefined,medicalNotes:typeof v.medicalNotes==="string"?v.medicalNotes:undefined,notes:typeof v.notes==="string"?v.notes:"",contactName:typeof v.contactName==="string"?v.contactName:"",contactPhone:typeof v.contactPhone==="string"?v.contactPhone:"",checkInPlan:typeof v.checkInPlan==="string"?v.checkInPlan:"",gear:Array.isArray(v.gear)?v.gear.filter((i):i is string=>typeof i==="string"):[],coordinates:v.coordinates&&typeof v.coordinates==="object"&&typeof (v.coordinates as Record<string,unknown>).lat==="number"&&typeof (v.coordinates as Record<string,unknown>).lng==="number"?{lat:(v.coordinates as {lat:number}).lat,lng:(v.coordinates as {lng:number}).lng}:null,officialSources:Array.isArray(v.officialSources)?v.officialSources.filter((i):i is {label:string;url:string}=>Boolean(i&&typeof i==="object"&&typeof (i as Record<string,unknown>).label==="string"&&typeof (i as Record<string,unknown>).url==="string")):undefined,status:typeof v.status==="string"&&statuses.includes(v.status as TripStatus)?v.status as TripStatus:"draft",createdAt:typeof v.createdAt==="string"?v.createdAt:now,updatedAt:typeof v.updatedAt==="string"?v.updatedAt:now};}
+export function parseTrips(raw:string|null):TripsReadResult{if(!raw)return{trips:[],recovered:0,error:null};try{const parsed:unknown=JSON.parse(raw);if(!Array.isArray(parsed))return{trips:[],recovered:0,error:"Stored trip data was not a valid list."};const trips=parsed.map(migrate).filter((v):v is SavedTrip=>Boolean(v));return{trips,recovered:parsed.length-trips.length,error:parsed.length&&!trips.length?"No valid trip records could be recovered.":null}}catch{return{trips:[],recovered:0,error:"Stored trip data could not be parsed."}}}
+export function readTripsResult():TripsReadResult{try{return parseTrips(window.localStorage.getItem(TRIPS_STORAGE_KEY))}catch{return{trips:[],recovered:0,error:"Browser storage is unavailable."}}}
+export function readTrips(){return readTripsResult().trips}
+export function writeTrips(trips:SavedTrip[]){const payload=trips.map(t=>({...t,schemaVersion:2 as const}));window.localStorage.setItem(TRIPS_STORAGE_KEY,JSON.stringify(payload));window.localStorage.setItem(`${TRIPS_STORAGE_KEY}_version`,String(STORAGE_VERSION));}
+export function duplicateTrip(trip:SavedTrip,now=new Date().toISOString()):SavedTrip{return{...trip,id:crypto.randomUUID(),name:`${trip.name} (copy)`,status:"draft",createdAt:now,updatedAt:now}}
+export function validateTripImport(value:unknown):{trips:SavedTrip[];errors:string[]}{const list=Array.isArray(value)?value:[value];const trips=list.map(migrate).filter((v):v is SavedTrip=>Boolean(v));return{trips,errors:list.length===trips.length?[]:[`${list.length-trips.length} invalid record(s) were rejected.`]}}
+export function tripBrief(trip:SavedTrip){return [`${trip.name}`,`${trip.region}${trip.date?` · ${trip.date}`:""}`,`Status: ${trip.status}`,trip.routeVariant?`Route: ${trip.routeVariant}`:"",trip.accessLocation?`Access: ${trip.accessLocation}`:"",trip.duration?`Expected duration: ${trip.duration}`:"",trip.notes?`Notes: ${trip.notes}`:"",trip.contactName?`Emergency contact: ${trip.contactName} ${trip.contactPhone}`:"",trip.checkInPlan?`Manual check-in plan: ${trip.checkInPlan}`:"","TrailDesk planning aid only. Confirm current information and use independent navigation and emergency systems."].filter(Boolean).join("\n");}

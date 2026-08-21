@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import "./explore.css";
 
 export const metadata: Metadata = {
-  title: "Explore African treks",
-  description: "Research 12 established African trekking destinations and use them as starting points for a browser-local trip plan.",
+  title: "Explore international trails",
+  description: "Search and compare researched hiking and trekking destinations across Africa, Europe, Asia, North America, South America, and Oceania.",
 };
 
 export default function ExploreLayout({ children }: Readonly<{ children: React.ReactNode }>) { return children; }
