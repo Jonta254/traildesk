@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">TrailDesk</title>
+  <desc id="desc">A winding trail crossing a mountain contour.</desc>
+  <rect width="64" height="64" rx="15" fill="#18382d"/>
+  <path d="M10 45.5 25.5 20l8.2 12.2L40.8 22 54 45.5" fill="none" stroke="#f0e9da" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M11 46c12.5-2.5 21.5-1.2 27 3.8 4.3 3.9 7.5 4.2 15 1.8" fill="none" stroke="#c98957" stroke-width="4" stroke-linecap="round"/>
+  <path d="M31.2 32.5c-2.9 5.4-3.2 9.8-.8 13.3" fill="none" stroke="#c98957" stroke-width="3.2" stroke-linecap="round"/>
+</svg>
