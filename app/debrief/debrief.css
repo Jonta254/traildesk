@@ -1,0 +1,1 @@
+.debrief-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(17rem,.65fr);gap:var(--space-6);align-items:start}.debrief-fields{display:grid;gap:1.2rem}.debrief-side{position:sticky;top:6rem}.debrief-state{padding-block:1rem;border-block:1px solid var(--line-soft)}@media(max-width:760px){.debrief-layout{grid-template-columns:1fr}.debrief-side{position:static}}

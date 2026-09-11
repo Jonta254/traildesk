@@ -28,7 +28,7 @@ The first addition is a browser-local **Departure Check**. It:
 ## Recommended next stages
 
 1. Add structured group-member roles and capability notes without storing unnecessary health detail.
-2. Add a post-trip close-out and lessons-learned workflow.
+2. Extend the completed post-trip close-out and lessons workflow with an export bundle that includes linked debriefs.
 3. Add import-preview conflict choices across all local datasets.
 4. Add a service worker only after an explicit offline-content inventory and update strategy exist.
 5. Add accounts or contact delivery only with authentication, encryption, delivery receipts, audit history, rate limiting, and incident response.
