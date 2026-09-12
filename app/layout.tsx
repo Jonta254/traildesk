@@ -4,6 +4,7 @@ import "./stage.css";
 import "./product.css";
 import "./fixes.css";
 import "./touch.css";
+import "./responsive-hardening.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://traildesk.vercel.app"),

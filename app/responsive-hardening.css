@@ -1,0 +1,1 @@
+button,.button{min-height:44px}.button-small{min-height:44px}main,section,article,aside,div{min-width:0}h1,h2,h3,p,dd,li{overflow-wrap:break-word}input,select,textarea{max-width:100%}@media(max-width:420px){.container,.header-inner,.footer-inner{width:min(calc(100% - 1.25rem),var(--content))}.form-card,.product-trip-list .trip-card{padding:1rem}}
