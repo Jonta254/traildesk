@@ -1,0 +1,24 @@
+.home-page h1,.home-page h2,.home-destination h3{font-family:Georgia,"Times New Roman",serif;font-weight:400;letter-spacing:-.045em}
+.home-hero h1{line-height:1.02;font-size:clamp(3rem,6vw,6.3rem);max-width:11ch}
+.home-page h2{line-height:1.12}
+.home-page .eyebrow{color:#765334}
+.home-hero .eyebrow,.home-preparation .eyebrow{color:#d7b979}
+.home-featured-brief h2{font-family:var(--font-sans);font-size:1.6rem;font-weight:650;letter-spacing:-.025em}
+.home-page .home-photo-credit{color:#526052;font-size:.75rem;line-height:1.6}
+.home-page .home-hero-credit{font-size:.75rem;line-height:1.6}
+.home-planning-copy>.button{color:#17231c;border-color:#7b877a}
+.home-planning-copy>.button:hover{background:#e4e8df}
+.home-destination .status-badge{color:#3b5133;border-color:#859377}
+.home-preview-header .status-badge{color:#36542c;border-color:#859377;background:#eef2e7}
+.home-desk{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(2rem,6vw,6rem);border-top:1px solid #c4c8bd}
+.home-desk-intro{max-width:40ch;color:#536157;line-height:1.7}
+.home-desk-links{border-top:1px solid #9eaa9b}
+.home-desk-links>a{display:grid;grid-template-columns:100px minmax(0,1fr) 20px;gap:1rem;align-items:center;padding:1.6rem .25rem;border-bottom:1px solid #b9c1b3;text-decoration:none;min-height:100px}
+.home-desk-number{font:500 .7rem/1.6 var(--font-mono);color:#765334}
+.home-desk-links strong{display:block;font-size:1.2rem;font-weight:600;letter-spacing:-.025em}
+.home-desk-links small{display:block;margin-top:.35rem;color:#536157;font-size:.9rem;line-height:1.6}
+.home-desk-links>a:hover{background:#e7eadd}
+.home-page :focus-visible{outline-color:#785431}
+.home-hero :focus-visible,.home-preparation :focus-visible{outline-color:#e6c285}
+@media(max-width:800px){.home-desk{grid-template-columns:1fr}.home-hero h1{max-width:11ch}.home-desk-links>a{grid-template-columns:85px minmax(0,1fr) 20px}}
+@media(max-width:430px){.home-hero h1{font-size:clamp(2.65rem,12vw,3.3rem)}.home-desk-links>a{grid-template-columns:minmax(0,1fr) 20px;gap:.35rem .75rem}.home-desk-number{grid-column:1/-1}.home-desk-links strong{font-size:1.12rem}.home-page h2{font-size:2.25rem}.home-destination h3{font-size:1.8rem}}

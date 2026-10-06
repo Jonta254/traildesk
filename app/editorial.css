@@ -1,0 +1,10 @@
+/* Editorial titles establish a common voice; controls and field data retain the UI font. */
+.explore-hero h1,
+.guide-hero h1,
+.nature-hero h1,
+.compare-page .page-header h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: -.04em;
+  line-height: 1.08;
+}

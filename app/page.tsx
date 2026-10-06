@@ -7,6 +7,7 @@ import { DESTINATIONS } from "@/app/lib/destinations";
 import { PHOTO_CREDITS } from "@/app/lib/photo-credits";
 import "./home.css";
 import "./home-stage.css";
+import "./home-editorial.css";
 
 const highlightIds = ["mount-kenya", "kilimanjaro", "rwenzori", "simien", "fish-river", "longonot"];
 const highlights = highlightIds.flatMap((id) => {
@@ -15,13 +16,14 @@ const highlights = highlightIds.flatMap((id) => {
 });
 
 const currentCapabilities = [
-  ["Research", "Compare established destinations using a shared catalogue of practical context."],
-  ["Prepare", "Build route notes, a departure brief, and a trip-specific gear checklist."],
-  ["Record", "Keep plans and reusable packing lists in the current browser profile."],
+  ["Research", "Study the terrain, compare routes and check the responsible authority’s advice."],
+  ["Prepare", "Name your route, review equipment and agree a contact plan with your group."],
+  ["Record", "Save trip briefs, departure checks and lessons from the walk. Download a workspace backup when you need one."],
 ] as const;
 
 export default function HomePage() {
   const heroCredit = PHOTO_CREDITS.kilimanjaro;
+  const featured = DESTINATIONS.find(d => d.id === "kilimanjaro")!;
 
   return (
     <AppShell>
@@ -48,7 +50,7 @@ export default function HomePage() {
               </div>
               <p className="home-capability-line">Real destinations <span aria-hidden="true">/</span> Credited photography <span aria-hidden="true">/</span> Browser-local planning</p>
             </div>
-            <aside className="home-featured-brief" aria-label="Featured trail brief"><p>Featured trail brief</p><h2>Mount Kilimanjaro</h2><dl><div><dt>Highest point</dt><dd>{DESTINATIONS.find((d) => d.id === "kilimanjaro")?.highestPoint}</dd></div><div><dt>Typical time</dt><dd>{DESTINATIONS.find((d) => d.id === "kilimanjaro")?.typicalDuration}</dd></div><div><dt>Common season</dt><dd>{DESTINATIONS.find((d) => d.id === "kilimanjaro")?.seasonSummary}</dd></div><div><dt>Map reference</dt><dd>-3.067 / 37.356</dd></div></dl><Link href="/explore/kilimanjaro">Read the trail guide <ArrowRight size={15} /></Link></aside>
+            <aside className="home-featured-brief" aria-label="Featured trail brief"><p>Featured trail brief</p><h2>{featured.name}</h2><dl><div><dt>Highest point</dt><dd>{featured.highestPoint}</dd></div><div><dt>Typical time</dt><dd>{featured.typicalDuration}</dd></div><div><dt>Common season</dt><dd>{featured.seasonSummary}</dd></div><div><dt>Reference location</dt><dd>{featured.coordinates.lat.toFixed(3)} / {featured.coordinates.lng.toFixed(3)}</dd></div></dl><Link href={`/explore/${featured.slug}`}>Read the trail guide <ArrowRight size={15} aria-hidden="true" /></Link></aside>
             <p className="home-hero-credit">Photo: {heroCredit.author} · <a href={heroCredit.source} target="_blank" rel="noopener noreferrer">{heroCredit.license}</a></p>
           </div>
         </section>
@@ -85,12 +87,12 @@ export default function HomePage() {
                 const credit = PHOTO_CREDITS[destination.id];
                 return (
                   <article className={`home-destination home-destination-${index + 1}`} key={destination.id}>
-                    <Link className="home-destination-image" href={`/explore#${destination.id}`} aria-label={`Research ${destination.name}`}>
-                      <Image src={`/explore/${destination.id}.jpg`} alt={`${destination.name}, ${destination.country}`} fill sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 40vw" />
+                    <Link className="home-destination-image" href={`/explore/${destination.slug}`} aria-label={`Research ${destination.name}`}>
+                      <Image src={destination.image!} alt={destination.imageAlt} fill sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 40vw" />
                     </Link>
                     <div className="home-destination-copy">
                       <div className="home-destination-topline"><span>{destination.country}</span><StatusBadge>{destination.difficulty}</StatusBadge></div>
-                      <h3><Link href={`/explore#${destination.id}`}>{destination.name}</Link></h3>
+                      <h3><Link href={`/explore/${destination.slug}`}>{destination.name}</Link></h3>
                       <dl>
                         <div><dt>Type</dt><dd>{destination.type}</dd></div>
                         <div><dt>Elevation / distance</dt><dd>{destination.headline}</dd></div>
@@ -120,7 +122,7 @@ export default function HomePage() {
           <div className="home-plan-preview" aria-label="Sample TrailDesk planning preview">
             <div className="home-preview-header"><div><p>Sample preview</p><h3>Mount Kenya · Point Lenana</h3></div><StatusBadge tone="available">Local draft</StatusBadge></div>
             <dl className="home-preview-facts">
-              <div><dt>Region</dt><dd>Kenya</dd></div><div><dt>Departure</dt><dd>18 September 2026</dd></div><div><dt>Duration</dt><dd>5 days</dd></div><div><dt>Trip type</dt><dd>Multi-day</dd></div>
+              <div><dt>Region</dt><dd>Kenya</dd></div><div><dt>Example departure</dt><dd>18 February 2027</dd></div><div><dt>Duration</dt><dd>5 days</dd></div><div><dt>Trip type</dt><dd>Multi-day</dd></div>
             </dl>
             <div className="home-readiness">
               <div className="home-readiness-label"><span>Gear readiness</span><strong>9 of 12 reviewed</strong></div>
@@ -132,6 +134,15 @@ export default function HomePage() {
               <p><Check size={16} aria-hidden="true" /><span><strong>Saved in this browser</strong><small>No cloud backup or device sync</small></span></p>
             </div>
           </div>
+        </section>
+
+        <section className="container home-section home-desk" aria-labelledby="desk-heading">
+          <div><p className="eyebrow">On your planning desk</p><h2 id="desk-heading">A better question at each stage.</h2><p className="home-desk-intro">Use the tools that match where you are in the decision, from your first shortlist to the morning you leave.</p></div>
+          <nav className="home-desk-links" aria-label="Planning tools">
+            <Link href="/compare"><span className="home-desk-number">01 / Choose</span><span><strong>Which route fits?</strong><small>Compare time, season, terrain and water needs.</small></span><ArrowRight size={20} aria-hidden="true" /></Link>
+            <Link href="/nature"><span className="home-desk-number">02 / Understand</span><span><strong>What should I notice?</strong><small>Read the landscape and learn how to reduce your impact.</small></span><ArrowRight size={20} aria-hidden="true" /></Link>
+            <Link href="/readiness"><span className="home-desk-number">03 / Review</span><span><strong>What still needs a decision?</strong><small>Check your brief, conditions and contact agreement.</small></span><ArrowRight size={20} aria-hidden="true" /></Link>
+          </nav>
         </section>
 
         <section className="home-preparation" aria-labelledby="preparation-heading">
