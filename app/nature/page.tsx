@@ -9,7 +9,7 @@ import "./nature.css";
 
 const featured = ["mount-kenya", "rwenzori", "simien", "fish-river", "longonot", "kilimanjaro"];
 export const metadata: Metadata = {
-  title: "Nature notes | TrailDesk",
+  title: "Nature notes",
   description: "Learn to notice terrain, respect wildlife and prepare for water and weather using practical outdoor guidance and real African trail photographs.",
 };
 export default function NaturePage() {
