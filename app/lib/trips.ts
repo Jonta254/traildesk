@@ -14,6 +14,17 @@ export function readTrash(){try{return parseTrash(window.localStorage.getItem(TR
 export function writeTrash(items:DeletedTrip[]){window.localStorage.setItem(TRIPS_TRASH_KEY,JSON.stringify(items))}
 export function duplicateTrip(trip:SavedTrip,now=new Date().toISOString()):SavedTrip{return{...trip,id:crypto.randomUUID(),name:`${trip.name} (copy)`,status:"draft",createdAt:now,updatedAt:now}}
 export function validateTripImport(value:unknown,existing:SavedTrip[]=[]){const list=Array.isArray(value)?value:[value],trips=list.map(migrate).filter((v):v is SavedTrip=>Boolean(v)),ids=new Set(existing.map(t=>t.id));return{trips,conflicts:trips.filter(t=>ids.has(t.id)).map(t=>t.id),errors:list.length===trips.length?[]:[`${list.length-trips.length} invalid record(s) were rejected.`]}}
-export function isValidIsoDate(value:string){return /^\d{4}-\d{2}-\d{2}$/.test(value)&&!Number.isNaN(Date.parse(`${value}T00:00:00Z`))}
-export function validateTripDates(departure:string,expectedReturn?:string){if(!isValidIsoDate(departure))return"Enter a valid departure date.";if(expectedReturn&&Date.parse(expectedReturn)<Date.parse(`${departure}T00:00`))return"Expected return must be after departure.";return null}
+export function isValidIsoDate(value:string){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
+  const timestamp=Date.parse(`${value}T00:00:00Z`);
+  return Number.isFinite(timestamp)&&new Date(timestamp).toISOString().slice(0,10)===value;
+}
+export function validateTripDates(departure:string,expectedReturn?:string){
+  if(!isValidIsoDate(departure))return"Enter a valid departure date.";
+  if(expectedReturn){
+    if(!/^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(expectedReturn)||!isValidIsoDate(expectedReturn.slice(0,10))||!Number.isFinite(Date.parse(expectedReturn)))return"Enter a valid expected return date and time.";
+    if(Date.parse(expectedReturn)<=Date.parse(`${departure}T00:00`))return"Expected return must be after departure.";
+  }
+  return null;
+}
 export function tripBrief(t:SavedTrip){return["TRAILDESK TRIP BRIEF",t.name,`${t.region}${t.date?` · ${t.date}`:""}`,`Status: ${t.status}`,t.expectedReturn?`Expected return: ${t.expectedReturn}`:"",t.routeVariant?`Route: ${t.routeVariant}`:"",t.groupSize?`Group size: ${t.groupSize}`:"",t.accessLocation?`Access: ${t.accessLocation}`:"",t.coordinates?`Destination reference: ${t.coordinates.lat}, ${t.coordinates.lng}`:"",t.transportNotes?`Transport: ${t.transportNotes}`:"",t.accommodationStyle?`Accommodation: ${t.accommodationStyle}`:"",t.guideDetails?`Guide: ${t.guideDetails}`:"",t.permitStatus?`Permit: ${t.permitStatus}`:"",t.duration?`Expected duration: ${t.duration}`:"",t.notes?`Route notes: ${t.notes}`:"",t.contactName?`Emergency contact: ${t.contactName} ${t.contactPhone}`:"",t.checkInPlan?`Manual check-in plan: ${t.checkInPlan}`:"",t.medicalNotes?`Medical note: ${t.medicalNotes}`:"",...(t.officialSources??[]).map(s=>`${s.label}: ${s.url}`),"TrailDesk does not monitor this trip, notify contacts, provide navigation, or contact emergency services."].filter(Boolean).join("\n")}

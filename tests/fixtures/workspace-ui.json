@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "app": "TrailDesk",
+  "exportedAt": "2026-10-06T12:00:00.000Z",
+  "records": {
+    "traildesk_gear_v1": {
+      "schemaVersion": 2,
+      "packed": {
+        "Short day hike": ["Water containers", "Navigation backup"]
+      }
+    }
+  }
+}

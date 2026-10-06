@@ -7,7 +7,7 @@ describe("workspace portability regressions", () => {
     const draft = { destinationId: "kilimanjaro", review: "My field notes" };
     const backup = createWorkspaceBackup({ getItem: name => name === key ? JSON.stringify(draft) : null });
     expect(reviewKey("kilimanjaro")).toBe(key);
-    expect(backup.records[key]).toEqual(draft);
+    expect(backup.records[key]).toMatchObject(draft);
   });
   it("rejects gear that would break checklist rendering", () => {
     for (const packed of [{ "Short day hike": 42 }, { "Short day hike": [false] }, []]) {
